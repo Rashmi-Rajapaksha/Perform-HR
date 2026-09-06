@@ -1,0 +1,16 @@
+{
+  "name": "hr-plus-integrated-hris",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HR Plus - An Integrated Human Resource Information System for KPI-Based Employee Performance Management",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start",
+    "migrate": "cd backend && npm run migrate",
+    "seed": "cd backend && npm run seed",
+    "db:reset": "cd backend && npm run db:reset",
+    "test": "cd backend && npm test"
+  },
+  "license": "MIT"
+}
