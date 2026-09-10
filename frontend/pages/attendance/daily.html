@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Daily Attendance</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <a href="index.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+          <h5 class="mb-0">Daily Attendance</h5>
+          <input type="date" class="form-control form-control-sm ms-2" style="width:170px" id="hrp-daily-date">
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Mark Attendance Manually</h6>
+              <form id="hrp-mark-attendance-form">
+                <div class="mb-2">
+                  <label class="form-label">Employee</label>
+                  <select class="form-select form-select-sm" id="hrp-mark-employee" required></select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select form-select-sm" id="hrp-mark-status" required>
+                    <option value="PRESENT">Present</option>
+                    <option value="ABSENT">Absent</option>
+                    <option value="LEAVE">Leave</option>
+                    <option value="HALF_DAY">Half Day</option>
+                    <option value="HOLIDAY">Holiday</option>
+                    <option value="OFF_DAY">Off Day</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Save</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Employee</th><th>Shift</th><th>Check In</th><th>Check Out</th><th>Late (min)</th><th>OT (min)</th><th>Status</th></tr></thead>
+                  <tbody id="hrp-daily-table"><tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/attendance.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Daily Attendance', match: 'attendance/index' }).then(() => HrpAttendance.initDailyPage());
+  </script>
+</body>
+</html>
+EOF
+cat > /home/claude/integrated-hris/frontend/pages/attendance/monthly.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Monthly Attendance</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <a href="index.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+          <h5 class="mb-0">Monthly Attendance</h5>
+          <input type="month" class="form-control form-control-sm ms-2" style="width:170px" id="hrp-monthly-month">
+        </div>
+
+        <div class="hrp-table-card">
+          <div class="table-responsive">
+            <table class="table hrp-table mb-0">
+              <thead><tr><th>Code</th><th>Name</th><th>Present</th><th>Absent</th><th>Leave</th><th>Attendance Rate</th><th>Overtime (min)</th></tr></thead>
+              <tbody id="hrp-monthly-table"><tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/attendance.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Monthly Attendance', match: 'attendance/index' }).then(() => HrpAttendance.initMonthlyPage());
+  </script>
+</body>
+</html>

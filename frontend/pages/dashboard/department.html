@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Department Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h5 class="mb-0">Department Dashboard <span class="text-primary" id="hrp-dept-name"></span></h5>
+          </div>
+          <select class="form-select form-select-sm" style="width:220px" id="hrp-dept-select"></select>
+        </div>
+
+        <div class="hrp-stat-grid" id="hrp-stat-grid">
+          <div class="hrp-loading">Select a department...</div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-6">
+            <div class="hrp-card hrp-chart-card">
+              <h6>Monthly Performance Trend</h6>
+              <canvas id="hrp-dept-trend-chart"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="hrp-card hrp-chart-card">
+              <h6>Shift Performance</h6>
+              <canvas id="hrp-shift-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="hrp-card">
+          <h6>Employee Ranking</h6>
+          <div id="hrp-employee-ranking"><div class="hrp-loading">Loading...</div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/dashboard.js"></script>
+  <script>
+    let pollHandle;
+    async function populateDepartments() {
+      const res = await HrpApi.get('/departments');
+      const select = document.getElementById('hrp-dept-select');
+      select.innerHTML = res.data.map((d) => `<option value="${d.id}">${HrpUtils.escapeHtml(d.name)}</option>`).join('');
+      const preselect = HrpUtils.qs('department_id') || res.data[0]?.id;
+      if (preselect) {
+        select.value = preselect;
+        loadForSelected();
+      }
+      select.addEventListener('change', loadForSelected);
+    }
+    function loadForSelected() {
+      if (pollHandle) clearInterval(pollHandle);
+      const id = document.getElementById('hrp-dept-select').value;
+      pollHandle = HrpDashboard.startPolling(() => HrpDashboard.loadDepartmentDashboard(id));
+    }
+
+    HrpLayout.init({ title: 'Department Dashboard', match: 'dashboard/department' }).then(() => {
+      populateDepartments().catch(HrpUtils.showError);
+    });
+  </script>
+</body>
+</html>

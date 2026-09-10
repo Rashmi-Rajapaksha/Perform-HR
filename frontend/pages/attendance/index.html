@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Attendance</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">My Attendance</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" id="hrp-checkin-btn"><i class="bi bi-box-arrow-in-right"></i> Check In</button>
+            <button class="btn btn-outline-danger btn-sm" id="hrp-checkout-btn"><i class="bi bi-box-arrow-right"></i> Check Out</button>
+            <a href="daily.html" class="btn btn-outline-secondary btn-sm">Daily View</a>
+            <a href="monthly.html" class="btn btn-outline-secondary btn-sm">Monthly View</a>
+          </div>
+        </div>
+
+        <div class="hrp-stat-grid" id="hrp-summary-tiles"></div>
+
+        <div class="row g-3">
+          <div class="col-lg-5">
+            <div class="hrp-card">
+              <h6>Apply for Leave</h6>
+              <form id="hrp-leave-form">
+                <div class="mb-2">
+                  <label class="form-label">Leave Type</label>
+                  <select class="form-select form-select-sm" id="hrp-leave-type" required></select>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control form-control-sm" id="hrp-leave-start" required>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control form-control-sm" id="hrp-leave-end" required>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Days</label>
+                  <input type="number" step="0.5" min="0.5" class="form-control form-control-sm" id="hrp-leave-days" value="1">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Reason</label>
+                  <textarea class="form-control form-control-sm" id="hrp-leave-reason" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Submit Application</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Leave Applications</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th></th></tr></thead>
+                  <tbody id="hrp-leave-table"><tr><td colspan="6" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/attendance.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Attendance', match: 'attendance/index' }).then(() => HrpAttendance.initIndexPage());
+  </script>
+</body>
+</html>

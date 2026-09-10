@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - My Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="mb-3">
+          <h5 class="mb-0" id="hrp-employee-name">My Dashboard</h5>
+          <small class="text-muted-sm" id="hrp-employee-meta"></small>
+        </div>
+
+        <div class="hrp-stat-grid" id="hrp-stat-grid">
+          <div class="hrp-loading">Loading...</div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Current Shift</h6>
+              <p id="hrp-current-shift" class="mb-0">-</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Performance Rating</h6>
+              <p id="hrp-performance-rating" class="mb-0 fw-bold">-</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Manager Feedback</h6>
+              <p id="hrp-manager-feedback" class="mb-0 text-muted-sm">-</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-6">
+            <div class="hrp-card hrp-chart-card">
+              <h6>Performance History</h6>
+              <canvas id="hrp-history-chart"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="hrp-card">
+              <h6>Current KPI Targets</h6>
+              <div class="table-responsive">
+                <table class="table hrp-table table-sm">
+                  <thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Achievement</th><th>Weight</th></tr></thead>
+                  <tbody id="hrp-kpi-detail-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hrp-card">
+          <h6>Recent Payslips</h6>
+          <div class="table-responsive">
+            <table class="table hrp-table table-sm">
+              <thead><tr><th>Period</th><th>Net Salary</th><th>Status</th></tr></thead>
+              <tbody id="hrp-payslips-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/dashboard.js"></script>
+  <script>
+    HrpLayout.init({ title: 'My Dashboard', match: 'dashboard/employee' }).then(() => {
+      const employeeId = HrpUtils.qs('employee_id');
+      HrpDashboard.startPolling(() => HrpDashboard.loadEmployeeDashboard(employeeId));
+    });
+  </script>
+</body>
+</html>

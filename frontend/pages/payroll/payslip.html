@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Payslip</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <button class="btn btn-sm btn-outline-secondary" onclick="history.back()"><i class="bi bi-arrow-left"></i></button>
+          <h5 class="mb-0">Payslip</h5>
+          <button class="btn btn-sm btn-outline-primary ms-auto" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+        </div>
+
+        <div class="hrp-card" style="max-width:640px;">
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <div class="fw-bold" id="hrp-payslip-employee">-</div>
+              <div class="text-muted-sm" id="hrp-payslip-period">-</div>
+            </div>
+            <div id="hrp-payslip-status"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+              <h6>Earnings</h6>
+              <table class="table table-sm"><tbody id="hrp-payslip-earnings"></tbody>
+                <tfoot><tr class="fw-bold"><td>Gross Total</td><td class="text-end" id="hrp-payslip-gross"></td></tr></tfoot>
+              </table>
+            </div>
+            <div class="col-6">
+              <h6>Deductions</h6>
+              <table class="table table-sm"><tbody id="hrp-payslip-deductions"></tbody>
+                <tfoot><tr class="fw-bold"><td>Deductions Total</td><td class="text-end" id="hrp-payslip-total-deductions"></td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+
+          <hr>
+          <div class="d-flex justify-content-between fs-5 fw-bold">
+            <span>Net Salary</span>
+            <span id="hrp-payslip-net"></span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/payroll.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Payslip', match: 'payroll/periods' }).then(() => HrpPayroll.initPayslipPage());
+  </script>
+</body>
+</html>
+EOF
+cat > /home/claude/integrated-hris/frontend/pages/payroll/my-payslips.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - My Payslips</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <h5 class="mb-3">My Payslips</h5>
+        <div class="hrp-table-card">
+          <div class="table-responsive">
+            <table class="table hrp-table mb-0">
+              <thead><tr><th>Period</th><th>Net Salary</th><th>Status</th><th></th></tr></thead>
+              <tbody id="hrp-my-payslips-table"><tr><td colspan="4" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/payroll.js"></script>
+  <script>
+    HrpLayout.init({ title: 'My Payslips', match: 'payroll/periods' }).then(() => HrpPayroll.initMyPayslipsPage());
+  </script>
+</body>
+</html>

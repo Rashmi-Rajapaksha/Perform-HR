@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Shifts</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <h5 class="mb-3">Shift Management</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Add Shift</h6>
+              <form id="hrp-shift-form">
+                <div class="mb-2"><label class="form-label">Name</label><input class="form-control form-control-sm" id="hrp-shift-name" required></div>
+                <div class="mb-2"><label class="form-label">Code</label><input class="form-control form-control-sm" id="hrp-shift-code" required></div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Start Time</label><input type="time" class="form-control form-control-sm" id="hrp-shift-start" required></div>
+                  <div class="col-6"><label class="form-label">End Time</label><input type="time" class="form-control form-control-sm" id="hrp-shift-end" required></div>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="hrp-shift-night">
+                  <label class="form-check-label" for="hrp-shift-night">Night shift</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Add Shift</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Shifts</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Name</th><th>Code</th><th>Start</th><th>End</th><th>Night Shift</th></tr></thead>
+                  <tbody id="hrp-shift-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Assign Employee to Shift</h6>
+              <form id="hrp-assign-form">
+                <div class="mb-2"><label class="form-label">Employee</label><select class="form-select form-select-sm" id="hrp-assign-employee" required></select></div>
+                <div class="mb-2"><label class="form-label">Shift</label><select class="form-select form-select-sm" id="hrp-assign-shift" required></select></div>
+                <div class="mb-3"><label class="form-label">Effective Date</label><input type="date" class="form-control form-control-sm" id="hrp-assign-date" required></div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Assign</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Shift Assignments</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Employee</th><th>Shift</th><th>From</th><th>To</th></tr></thead>
+                  <tbody id="hrp-assignment-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/shifts.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Shifts', match: 'shifts/index' }).then(() => HrpShifts.init());
+  </script>
+</body>
+</html>

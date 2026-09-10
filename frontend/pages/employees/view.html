@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Employee Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <a href="index.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+          <h5 class="mb-0" id="hrp-view-name">Employee</h5>
+          <span id="hrp-view-status"></span>
+          <a href="#" id="hrp-edit-link" class="btn btn-sm btn-primary ms-auto"><i class="bi bi-pencil"></i> Edit</a>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-8">
+            <div class="hrp-card">
+              <h6 class="mb-3">Profile</h6>
+              <dl class="row mb-0">
+                <dt class="col-sm-4">Employee Code</dt><dd class="col-sm-8" id="hrp-view-code"></dd>
+                <dt class="col-sm-4">Department</dt><dd class="col-sm-8" id="hrp-view-department"></dd>
+                <dt class="col-sm-4">Designation</dt><dd class="col-sm-8" id="hrp-view-designation"></dd>
+                <dt class="col-sm-4">Reporting Manager</dt><dd class="col-sm-8" id="hrp-view-manager"></dd>
+                <dt class="col-sm-4">Employment Type</dt><dd class="col-sm-8" id="hrp-view-employment-type"></dd>
+                <dt class="col-sm-4">Work Schedule</dt><dd class="col-sm-8" id="hrp-view-schedule"></dd>
+                <dt class="col-sm-4">Join Date</dt><dd class="col-sm-8" id="hrp-view-join-date"></dd>
+                <dt class="col-sm-4">Basic Salary</dt><dd class="col-sm-8" id="hrp-view-salary"></dd>
+                <dt class="col-sm-4">Email</dt><dd class="col-sm-8" id="hrp-view-email"></dd>
+                <dt class="col-sm-4">Phone</dt><dd class="col-sm-8" id="hrp-view-phone"></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Direct Reports</h6>
+              <ul class="mb-0 ps-3" id="hrp-direct-reports"><li class="text-muted-sm">Loading...</li></ul>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/employees.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Employee Profile', match: 'employees/index' }).then(() => HrpEmployees.initViewPage());
+  </script>
+</body>
+</html>

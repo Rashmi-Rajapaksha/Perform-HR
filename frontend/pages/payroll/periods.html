@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Payroll Periods</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <h5 class="mb-3">Payroll</h5>
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>New Payroll Period</h6>
+              <form id="hrp-period-form">
+                <div class="mb-2"><label class="form-label">Name</label><input class="form-control form-control-sm" id="hrp-period-name" placeholder="2026-09" required></div>
+                <div class="row g-2 mb-3">
+                  <div class="col-6"><label class="form-label">Start</label><input type="date" class="form-control form-control-sm" id="hrp-period-start" required></div>
+                  <div class="col-6"><label class="form-label">End</label><input type="date" class="form-control form-control-sm" id="hrp-period-end" required></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Create Period</button>
+              </form>
+              <hr>
+              <a href="my-payslips.html" class="btn btn-outline-secondary btn-sm w-100">My Payslips</a>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Payroll Periods</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Name</th><th>Range</th><th>Status</th><th></th></tr></thead>
+                  <tbody id="hrp-period-table"><tr><td colspan="4" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/payroll.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Payroll', match: 'payroll/periods' }).then(() => HrpPayroll.initPeriodsPage());
+  </script>
+</body>
+</html>
+EOF
+cat > /home/claude/integrated-hris/frontend/pages/payroll/process.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Process Payroll</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <a href="periods.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+          <h5 class="mb-0">Process Payroll</h5>
+        </div>
+
+        <div class="hrp-card" style="max-width:480px;">
+          <p class="text-muted-sm">This runs the payroll calculation (basic salary + allowances + overtime - attendance/no-pay deductions - loans) for every active employee in the selected period, inside a single database transaction.</p>
+          <form id="hrp-process-form">
+            <div class="mb-3">
+              <label class="form-label">Payroll Period</label>
+              <select class="form-select" id="hrp-process-period" required></select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Process Payroll</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/payroll.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Process Payroll', match: 'payroll/periods' }).then(() => HrpPayroll.initProcessPage());
+  </script>
+</body>
+</html>

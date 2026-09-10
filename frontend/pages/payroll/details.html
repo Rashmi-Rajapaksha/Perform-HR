@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Payroll Details</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <a href="periods.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+          <h5 class="mb-0">Payroll Details</h5>
+        </div>
+        <div class="hrp-table-card">
+          <div class="table-responsive">
+            <table class="table hrp-table mb-0">
+              <thead><tr><th>Employee</th><th>Gross</th><th>Deductions</th><th>Net Salary</th><th>Status</th><th></th></tr></thead>
+              <tbody id="hrp-payroll-table"><tr><td colspan="6" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/payroll.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Payroll Details', match: 'payroll/periods' }).then(() => HrpPayroll.initDetailsPage());
+  </script>
+</body>
+</html>
