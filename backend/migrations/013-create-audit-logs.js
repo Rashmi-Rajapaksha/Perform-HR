@@ -24,8 +24,8 @@ module.exports = {
       module: { type: Sequelize.STRING(50), allowNull: false },
       entity_type: { type: Sequelize.STRING(50), allowNull: true },
       entity_id: { type: Sequelize.INTEGER, allowNull: true },
-      old_values: { type: Sequelize.JSON, allowNull: true },
-      new_values: { type: Sequelize.JSON, allowNull: true },
+      old_values: { type: Sequelize.TEXT, allowNull: true },
+      new_values: { type: Sequelize.TEXT, allowNull: true },
       ip_address: { type: Sequelize.STRING(45), allowNull: true },
       created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
     });

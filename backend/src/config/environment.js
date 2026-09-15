@@ -28,7 +28,7 @@ module.exports = {
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     name: process.env.DB_NAME || 'hr_plus',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    password: process.env.DB_PASSWORD || 'radeon.20',
     dialect: process.env.DB_DIALECT || 'mysql',
     logging: process.env.DB_LOGGING === 'true',
   },
