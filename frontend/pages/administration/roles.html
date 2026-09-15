@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Roles &amp; Permissions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Roles &amp; Permissions</h5>
+          <div class="d-flex gap-2">
+            <a href="users.html" class="btn btn-outline-secondary btn-sm">Users</a>
+            <a href="settings.html" class="btn btn-outline-secondary btn-sm">System Settings</a>
+          </div>
+        </div>
+        <div id="hrp-roles-container"><div class="hrp-loading">Loading roles...</div></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/administration.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Roles & Permissions', match: 'administration/roles' }).then(() => HrpAdmin.initRolesPage());
+  </script>
+</body>
+</html>

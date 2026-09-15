@@ -1,0 +1,203 @@
+/**
+ * Renders the three dashboard levels (organization / department /
+ * employee) and polls the API roughly every 60 seconds for near
+ * real-time updates, per the project's REST-polling requirement.
+ */
+const HrpDashboard = (() => {
+  const POLL_INTERVAL_MS = 60 * 1000;
+  let chartInstances = {};
+
+  function destroyChart(key) {
+    if (chartInstances[key]) {
+      chartInstances[key].destroy();
+      delete chartInstances[key];
+    }
+  }
+
+  function renderAlerts(containerEl, alerts) {
+    if (!containerEl) return;
+    if (!alerts || alerts.length === 0) {
+      containerEl.innerHTML = '<p class="text-muted-sm mb-0">No active alerts. Everything looks healthy.</p>';
+      return;
+    }
+    containerEl.innerHTML = alerts
+      .slice(0, 12)
+      .map((a) => `<div class="hrp-alert-item severity-${a.severity}"><strong>${a.type.replace(/_/g, ' ')}</strong><br>${HrpUtils.escapeHtml(a.message)}</div>`)
+      .join('');
+  }
+
+  function renderStatTiles(containerEl, tiles) {
+    containerEl.innerHTML = tiles
+      .map(
+        (t) => `
+      <div class="hrp-card hrp-stat-tile">
+        <div class="stat-label">${t.label}</div>
+        <div class="stat-value">${t.value}</div>
+      </div>`
+      )
+      .join('');
+  }
+
+  function renderRankingList(containerEl, items, { scoreKey = 'score', nameKey = 'name' } = {}) {
+    if (!items || items.length === 0) {
+      containerEl.innerHTML = '<p class="text-muted-sm mb-0">No data available.</p>';
+      return;
+    }
+    containerEl.innerHTML = `<ul class="hrp-ranking-list">${items
+      .map(
+        (item, idx) => `
+      <li>
+        <span><span class="rank-badge">${idx + 1}</span>${HrpUtils.escapeHtml(item[nameKey] || `${item.first_name || ''} ${item.last_name || ''}`)}</span>
+        <span class="hrp-perf-score ${HrpUtils.scoreClass(item[scoreKey])}">${Number(item[scoreKey] || 0).toFixed(1)}%</span>
+      </li>`
+      )
+      .join('')}</ul>`;
+  }
+
+  async function loadOrganizationDashboard() {
+    const res = await HrpApi.get('/dashboard/organization');
+    const d = res.data;
+
+    renderStatTiles(document.getElementById('hrp-stat-grid'), [
+      { label: 'Total Employees', value: d.totalEmployees },
+      { label: 'Present Today', value: d.presentEmployees },
+      { label: 'Absent Today', value: d.absentEmployees },
+      { label: 'Attendance %', value: `${d.attendancePercentage}%` },
+      { label: 'Avg KPI Score', value: `${d.averageKpiScore}%` },
+      { label: 'Payroll Cost (latest period)', value: HrpUtils.formatCurrency(d.payrollCost) },
+    ]);
+
+    renderRankingList(document.getElementById('hrp-top-performers'), d.topPerformers, { scoreKey: 'kpiScore' });
+    renderRankingList(document.getElementById('hrp-low-performers'), d.lowPerformers, { scoreKey: 'kpiScore' });
+    renderAlerts(document.getElementById('hrp-alert-list'), d.managementAlerts);
+
+    const deptCtx = document.getElementById('hrp-dept-chart');
+    if (deptCtx) {
+      destroyChart('dept');
+      chartInstances.dept = new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+          labels: d.departmentPerformance.map((x) => x.departmentName),
+          datasets: [{ label: 'Avg KPI Score (%)', data: d.departmentPerformance.map((x) => x.averageKpiScore), backgroundColor: '#2453ff' }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 120 } } },
+      });
+    }
+
+    const trendCtx = document.getElementById('hrp-trend-chart');
+    if (trendCtx) {
+      destroyChart('trend');
+      chartInstances.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: d.performanceTrend.map((x) => x.period),
+          datasets: [{ label: 'Avg Final Score', data: d.performanceTrend.map((x) => x.averageScore), borderColor: '#16a34a', tension: 0.3, fill: false }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } } },
+      });
+    }
+
+    const stamp = document.getElementById('hrp-last-updated');
+    if (stamp) stamp.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  }
+
+  async function loadDepartmentDashboard(departmentId) {
+    const res = await HrpApi.get(`/dashboard/department/${departmentId}`);
+    const d = res.data;
+
+    renderStatTiles(document.getElementById('hrp-stat-grid'), [
+      { label: 'Employees', value: d.numberOfEmployees },
+      { label: 'Avg Attendance', value: `${d.averageAttendanceRate}%` },
+      { label: 'Avg KPI Score', value: `${d.averageKpiScore}%` },
+      { label: 'Total Overtime (min)', value: d.totalOvertimeMinutes },
+    ]);
+
+    document.getElementById('hrp-dept-name').textContent = d.departmentName;
+    renderRankingList(document.getElementById('hrp-employee-ranking'), d.employeeRanking, { scoreKey: 'score' });
+
+    const trendCtx = document.getElementById('hrp-dept-trend-chart');
+    if (trendCtx) {
+      destroyChart('deptTrend');
+      chartInstances.deptTrend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: d.monthlyPerformanceTrend.map((x) => x.period),
+          datasets: [{ label: 'Avg Final Score', data: d.monthlyPerformanceTrend.map((x) => x.averageScore), borderColor: '#2453ff', tension: 0.3 }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } } },
+      });
+    }
+
+    const shiftCtx = document.getElementById('hrp-shift-chart');
+    if (shiftCtx && d.shiftPerformance?.length) {
+      destroyChart('shift');
+      chartInstances.shift = new Chart(shiftCtx, {
+        type: 'bar',
+        data: {
+          labels: d.shiftPerformance.map((s) => `Shift #${s.shiftId}`),
+          datasets: [
+            { label: 'Achievement %', data: d.shiftPerformance.map((s) => s.achievementPercentage), backgroundColor: '#2453ff' },
+            { label: 'Defect Rate %', data: d.shiftPerformance.map((s) => s.defectRate), backgroundColor: '#dc2626' },
+          ],
+        },
+        options: { responsive: true, maintainAspectRatio: false },
+      });
+    }
+  }
+
+  async function loadEmployeeDashboard(employeeId) {
+    const path = employeeId ? `/dashboard/employee/${employeeId}` : '/dashboard/employee/me';
+    const res = await HrpApi.get(path);
+    const d = res.data;
+
+    document.getElementById('hrp-employee-name').textContent = d.employee.name;
+    document.getElementById('hrp-employee-meta').textContent = `${d.employee.employeeCode} · ${d.employee.department || ''} · ${d.employee.designation || ''}`;
+
+    renderStatTiles(document.getElementById('hrp-stat-grid'), [
+      { label: 'Attendance Rate', value: `${d.attendance.attendanceRate}%` },
+      { label: 'Punctuality', value: `${d.attendance.punctualityRate}%` },
+      { label: 'Overall KPI Score', value: `${d.kpi.overallKpiScore}%` },
+      { label: 'Performance Score', value: d.overallPerformanceScore ?? '-' },
+    ]);
+
+    document.getElementById('hrp-current-shift').textContent = d.currentShift ? `${d.currentShift.name} (${d.currentShift.start} - ${d.currentShift.end})` : 'Not assigned';
+    document.getElementById('hrp-performance-rating').textContent = d.performanceRating || 'Not yet rated';
+    document.getElementById('hrp-manager-feedback').textContent = d.managerFeedback || 'No feedback recorded yet.';
+
+    const kpiTable = document.getElementById('hrp-kpi-detail-table');
+    if (kpiTable) {
+      kpiTable.innerHTML = d.kpi.details
+        .map(
+          (k) => `<tr><td>${HrpUtils.escapeHtml(k.kpiName)}</td><td>${k.target}</td><td>${k.actual}</td><td>${k.achievementPercentage}%</td><td>${k.weight}%</td></tr>`
+        )
+        .join('') || '<tr><td colspan="5" class="text-center text-muted-sm">No KPIs assigned</td></tr>';
+    }
+
+    const historyCtx = document.getElementById('hrp-history-chart');
+    if (historyCtx) {
+      destroyChart('history');
+      chartInstances.history = new Chart(historyCtx, {
+        type: 'line',
+        data: {
+          labels: d.performanceHistory.map((h) => h.period).reverse(),
+          datasets: [{ label: 'Final Score', data: d.performanceHistory.map((h) => h.finalScore).reverse(), borderColor: '#2453ff', tension: 0.3 }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } } },
+      });
+    }
+
+    const payslipsBody = document.getElementById('hrp-payslips-table');
+    if (payslipsBody) {
+      payslipsBody.innerHTML = d.payslips
+        .map((p) => `<tr><td>${HrpUtils.escapeHtml(p.period)}</td><td>${HrpUtils.formatCurrency(p.netSalary)}</td><td>${HrpUtils.statusBadge(p.status)}</td></tr>`)
+        .join('') || '<tr><td colspan="3" class="text-center text-muted-sm">No payslips yet</td></tr>';
+    }
+  }
+
+  function startPolling(loaderFn) {
+    loaderFn().catch(HrpUtils.showError);
+    return setInterval(() => loaderFn().catch(HrpUtils.showError), POLL_INTERVAL_MS);
+  }
+
+  return { loadOrganizationDashboard, loadDepartmentDashboard, loadEmployeeDashboard, startPolling };
+})();

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Production Records</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <h5 class="mb-3">Production Records</h5>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Log Production Entry</h6>
+              <form id="hrp-prod-form">
+                <div class="mb-2"><label class="form-label">Employee</label><select class="form-select form-select-sm" id="hrp-prod-employee" required></select></div>
+                <div class="mb-2"><label class="form-label">Date</label><input type="date" class="form-control form-control-sm" id="hrp-prod-date" required></div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Target Units</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-target" required></div>
+                  <div class="col-6"><label class="form-label">Produced Units</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-produced" required></div>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Defective Units</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-defective" value="0"></div>
+                  <div class="col-6"><label class="form-label">Rework Units</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-rework" value="0"></div>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-6"><label class="form-label">Downtime (min)</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-downtime" value="0"></div>
+                  <div class="col-6"><label class="form-label">Safety Incidents</label><input type="number" min="0" class="form-control form-control-sm" id="hrp-prod-safety" value="0"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Save Entry</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar">
+                <strong>Daily Production</strong>
+                <input type="date" class="form-control form-control-sm" style="width:170px" id="hrp-prod-date-filter">
+              </div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Employee</th><th>Target</th><th>Produced</th><th>Defective</th><th>Achievement</th><th>Downtime</th><th>Safety</th></tr></thead>
+                  <tbody id="hrp-prod-table"><tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/production.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Production Records', match: 'production/records' }).then(() => HrpProduction.init());
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+/* Data table styling shared across list pages */
+
+.hrp-table-card { background: #fff; border: 1px solid var(--hrp-card-border); border-radius: 10px; overflow: hidden; }
+.hrp-table-toolbar {
+  padding: 0.9rem 1.1rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hrp-card-border);
+}
+.hrp-table-toolbar .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+table.hrp-table { margin-bottom: 0; }
+table.hrp-table thead th {
+  background: #fafbfe;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--hrp-muted);
+  border-bottom: 1px solid var(--hrp-card-border);
+  white-space: nowrap;
+}
+table.hrp-table td { vertical-align: middle; font-size: 0.88rem; }
+table.hrp-table tbody tr:hover { background-color: #f8faff; }
+
+.hrp-table-footer {
+  padding: 0.75rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--hrp-card-border);
+  font-size: 0.82rem;
+  color: var(--hrp-muted);
+}
+
+.hrp-row-actions { display: flex; gap: 0.35rem; }
+.hrp-row-actions .btn { padding: 0.2rem 0.5rem; font-size: 0.78rem; }

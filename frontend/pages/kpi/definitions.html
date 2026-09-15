@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - KPI Definitions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">KPI Management</h5>
+          <div class="d-flex gap-2">
+            <a href="assignments.html" class="btn btn-outline-secondary btn-sm">Assignments</a>
+            <a href="measurements.html" class="btn btn-outline-secondary btn-sm">Measurements</a>
+            <a href="performance.html" class="btn btn-outline-secondary btn-sm">Performance View</a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>New KPI Definition</h6>
+              <form id="hrp-kpi-def-form">
+                <div class="mb-2"><label class="form-label">Code</label><input class="form-control form-control-sm" id="hrp-def-code" placeholder="CUSTOM_KPI" required></div>
+                <div class="mb-2"><label class="form-label">Name</label><input class="form-control form-control-sm" id="hrp-def-name" required></div>
+                <div class="mb-2"><label class="form-label">Category</label><select class="form-select form-select-sm" id="hrp-def-category" required></select></div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Unit</label><input class="form-control form-control-sm" id="hrp-def-unit" placeholder="%" required></div>
+                  <div class="col-6"><label class="form-label">Direction</label>
+                    <select class="form-select form-select-sm" id="hrp-def-direction">
+                      <option value="HIGHER_IS_BETTER">Higher is better</option>
+                      <option value="LOWER_IS_BETTER">Lower is better</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Target</label><input type="number" step="0.01" class="form-control form-control-sm" id="hrp-def-target" required></div>
+                  <div class="col-6"><label class="form-label">Default Weight %</label><input type="number" step="0.01" class="form-control form-control-sm" id="hrp-def-weight" value="0" required></div>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-6"><label class="form-label">Frequency</label>
+                    <select class="form-select form-select-sm" id="hrp-def-frequency">
+                      <option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option>
+                      <option value="MONTHLY" selected>Monthly</option><option value="QUARTERLY">Quarterly</option><option value="ANNUALLY">Annually</option>
+                    </select>
+                  </div>
+                  <div class="col-6"><label class="form-label">Data Source</label>
+                    <select class="form-select form-select-sm" id="hrp-def-source">
+                      <option value="MANUAL">Manual</option><option value="ATTENDANCE">Attendance</option>
+                      <option value="PRODUCTION">Production</option><option value="SYSTEM">System</option><option value="IMPORT">Import</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3"><label class="form-label">Level</label>
+                  <select class="form-select form-select-sm" id="hrp-def-level">
+                    <option value="ORGANIZATION">Organization</option><option value="DEPARTMENT">Department</option>
+                    <option value="DESIGNATION">Designation</option><option value="EMPLOYEE" selected>Employee</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Create KPI</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>KPI Definitions</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Direction</th><th>Target</th><th>Source</th><th>Status</th></tr></thead>
+                  <tbody id="hrp-def-table"><tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/kpi.js"></script>
+  <script>
+    HrpLayout.init({ title: 'KPI Definitions', match: 'kpi/definitions' }).then(() => HrpKpi.initDefinitionsPage());
+  </script>
+</body>
+</html>

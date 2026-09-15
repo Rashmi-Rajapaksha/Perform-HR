@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HR Plus</title>
+  <meta http-equiv="refresh" content="0; url=login.html">
+</head>
+<body>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    window.location.href = HrpAuth.isLoggedIn() ? 'pages/dashboard/organization.html' : 'login.html';
+  </script>
+  <p>Redirecting to <a href="login.html">HR Plus</a>...</p>
+</body>
+</html>

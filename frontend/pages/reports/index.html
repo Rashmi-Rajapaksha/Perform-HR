@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Reports</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <h5 class="mb-3">Reports &amp; Analytics</h5>
+        <div class="row g-3">
+          <div class="col-lg-3">
+            <div class="list-group" id="hrp-report-list"></div>
+          </div>
+          <div class="col-lg-9">
+            <div class="hrp-card">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0" id="hrp-report-title">Report</h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary btn-sm" id="hrp-run-report-btn"><i class="bi bi-play-fill"></i> Run Report</button>
+                  <button class="btn btn-outline-secondary btn-sm" id="hrp-export-csv-btn"><i class="bi bi-download"></i> Export CSV</button>
+                </div>
+              </div>
+              <div class="d-flex gap-3 flex-wrap mb-3" id="hrp-report-params"></div>
+              <div id="hrp-report-results"><p class="text-muted-sm">Select a report and click "Run Report".</p></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/reports.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Reports', match: 'reports/index' }).then(() => HrpReports.init());
+  </script>
+</body>
+</html>

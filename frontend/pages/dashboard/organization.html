@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Organization Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="mb-0">Organization Dashboard</h5>
+            <small class="text-muted-sm" id="hrp-last-updated">Loading...</small>
+          </div>
+        </div>
+
+        <div class="hrp-stat-grid" id="hrp-stat-grid">
+          <div class="hrp-loading">Loading dashboard...</div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-7">
+            <div class="hrp-card hrp-chart-card">
+              <h6>Department Performance</h6>
+              <canvas id="hrp-dept-chart"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="hrp-card hrp-chart-card">
+              <h6>Organization Performance Trend</h6>
+              <canvas id="hrp-trend-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Top Performers</h6>
+              <div id="hrp-top-performers"><div class="hrp-loading">Loading...</div></div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Employees Needing Support</h6>
+              <div id="hrp-low-performers"><div class="hrp-loading">Loading...</div></div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="mb-0"><i class="bi bi-exclamation-triangle text-warning me-1"></i> Management Alerts</h6>
+              </div>
+              <div id="hrp-alert-list"><div class="hrp-loading">Loading...</div></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/dashboard.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Organization Dashboard', match: 'dashboard/organization' }).then(() => {
+      HrpDashboard.startPolling(HrpDashboard.loadOrganizationDashboard);
+    });
+  </script>
+</body>
+</html>

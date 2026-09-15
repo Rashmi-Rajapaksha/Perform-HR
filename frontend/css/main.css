@@ -1,0 +1,191 @@
+/* ==========================================================================
+   HR Plus - Main stylesheet
+   Design tokens + base layout (sidebar + topbar + content shell).
+   Built on top of Bootstrap 5 utility classes; this file only adds what
+   Bootstrap doesn't already provide.
+   ========================================================================== */
+
+:root {
+  --hrp-primary: #2453ff;
+  --hrp-primary-dark: #1638b3;
+  --hrp-sidebar-bg: #101a34;
+  --hrp-sidebar-hover: #1c2b52;
+  --hrp-sidebar-active: #2453ff;
+  --hrp-sidebar-text: #b7c1e0;
+  --hrp-sidebar-text-active: #ffffff;
+  --hrp-bg: #f4f6fb;
+  --hrp-card-border: #e6e9f2;
+  --hrp-success: #16a34a;
+  --hrp-warning: #f59e0b;
+  --hrp-danger: #dc2626;
+  --hrp-muted: #6b7280;
+  --hrp-sidebar-width: 250px;
+}
+
+body {
+  background-color: var(--hrp-bg);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+  color: #1f2430;
+}
+
+a { text-decoration: none; }
+
+/* ----- App shell layout ----- */
+.hrp-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.hrp-sidebar {
+  width: var(--hrp-sidebar-width);
+  flex-shrink: 0;
+  background-color: var(--hrp-sidebar-bg);
+  color: var(--hrp-sidebar-text);
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+}
+
+.hrp-sidebar .brand {
+  padding: 1.25rem 1.25rem 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.hrp-sidebar .brand small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--hrp-sidebar-text);
+  margin-top: 2px;
+}
+
+.hrp-sidebar .nav-section-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7aa3;
+  padding: 1rem 1.25rem 0.35rem;
+}
+
+.hrp-sidebar .nav-link {
+  color: var(--hrp-sidebar-text);
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-left: 3px solid transparent;
+}
+.hrp-sidebar .nav-link:hover {
+  background-color: var(--hrp-sidebar-hover);
+  color: #fff;
+}
+.hrp-sidebar .nav-link.active {
+  background-color: var(--hrp-sidebar-hover);
+  border-left-color: var(--hrp-sidebar-active);
+  color: var(--hrp-sidebar-text-active);
+  font-weight: 600;
+}
+.hrp-sidebar .nav-link i { width: 18px; text-align: center; }
+
+.hrp-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hrp-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--hrp-card-border);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.hrp-topbar h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.hrp-content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* ----- Cards / KPI tiles ----- */
+.hrp-card {
+  background: #fff;
+  border: 1px solid var(--hrp-card-border);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+}
+
+.hrp-stat-tile .stat-label {
+  font-size: 0.78rem;
+  color: var(--hrp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hrp-stat-tile .stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+.hrp-stat-tile .stat-delta { font-size: 0.78rem; }
+.hrp-stat-tile .stat-delta.up { color: var(--hrp-success); }
+.hrp-stat-tile .stat-delta.down { color: var(--hrp-danger); }
+
+/* ----- Badges for statuses ----- */
+.badge-status { font-weight: 600; font-size: 0.72rem; padding: 0.35em 0.65em; }
+.badge-PRESENT, .badge-ACTIVE, .badge-APPROVED, .badge-PAID, .badge-FINALIZED { background: #dcfce7; color: #166534; }
+.badge-ABSENT, .badge-TERMINATED, .badge-REJECTED, .badge-CANCELLED { background: #fee2e2; color: #991b1b; }
+.badge-LEAVE, .badge-PENDING, .badge-DRAFT, .badge-SUBMITTED { background: #fef3c7; color: #92400e; }
+.badge-HALF_DAY, .badge-ON_LEAVE, .badge-REVIEWED, .badge-CALCULATED, .badge-MANAGER_REVIEWED { background: #dbeafe; color: #1e40af; }
+.badge-HOLIDAY, .badge-OFF_DAY, .badge-SUSPENDED { background: #e5e7eb; color: #374151; }
+
+/* ----- Alerts panel ----- */
+.hrp-alert-item {
+  border-left: 4px solid var(--hrp-warning);
+  background: #fffbeb;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+.hrp-alert-item.severity-HIGH { border-left-color: var(--hrp-danger); background: #fef2f2; }
+.hrp-alert-item.severity-MEDIUM { border-left-color: var(--hrp-warning); background: #fffbeb; }
+.hrp-alert-item.severity-LOW { border-left-color: #3b82f6; background: #eff6ff; }
+
+/* ----- Login page ----- */
+.hrp-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--hrp-sidebar-bg) 0%, var(--hrp-primary-dark) 100%);
+}
+.hrp-login-card {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+.hrp-loading { text-align: center; padding: 2rem; color: var(--hrp-muted); }
+.text-muted-sm { font-size: 0.78rem; color: var(--hrp-muted); }
+
+@media (max-width: 900px) {
+  .hrp-sidebar { position: fixed; left: -260px; z-index: 1050; transition: left 0.2s ease; height: 100vh; }
+  .hrp-sidebar.open { left: 0; }
+  .hrp-main { width: 100%; }
+}

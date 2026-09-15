@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - User Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">User Management</h5>
+          <div class="d-flex gap-2">
+            <a href="roles.html" class="btn btn-outline-secondary btn-sm">Roles &amp; Permissions</a>
+            <a href="settings.html" class="btn btn-outline-secondary btn-sm">System Settings</a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Create User Account</h6>
+              <form id="hrp-register-form">
+                <div class="mb-2"><label class="form-label">Username</label><input class="form-control form-control-sm" id="hrp-register-username" required></div>
+                <div class="mb-2"><label class="form-label">Email</label><input type="email" class="form-control form-control-sm" id="hrp-register-email" required></div>
+                <div class="mb-2"><label class="form-label">Password</label><input type="password" class="form-control form-control-sm" id="hrp-register-password" required minlength="8"></div>
+                <div class="mb-3"><label class="form-label">Role</label><select class="form-select form-select-sm" id="hrp-register-role" required></select></div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Create Account</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Users</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Employee</th><th>Status</th><th></th></tr></thead>
+                  <tbody id="hrp-user-table"><tr><td colspan="6" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/administration.js"></script>
+  <script>
+    HrpLayout.init({ title: 'User Management', match: 'administration/users' }).then(() => {
+      HrpAdmin.initUsersPage();
+      HrpAdmin.bindCreateUserForm();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Performance Evaluations</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h5 class="mb-0">Performance Evaluations</h5>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" id="hrp-period-filter" style="width:200px"></select>
+            <a href="improvement-plans.html" class="btn btn-outline-secondary btn-sm">Improvement Plans</a>
+          </div>
+        </div>
+
+        <div class="hrp-card mb-3">
+          <h6>Generate Evaluation from KPI Data</h6>
+          <form id="hrp-generate-form" class="d-flex gap-2 align-items-end flex-wrap">
+            <div><label class="form-label">Employee</label><select class="form-select form-select-sm" id="hrp-generate-employee" style="width:220px"></select></div>
+            <button type="submit" class="btn btn-primary btn-sm">Generate</button>
+          </form>
+        </div>
+
+        <div class="hrp-table-card">
+          <div class="table-responsive">
+            <table class="table hrp-table mb-0">
+              <thead><tr><th>Employee</th><th>KPI Score</th><th>Manager Score</th><th>Final Score</th><th>Rating</th><th>Status</th><th></th></tr></thead>
+              <tbody id="hrp-eval-table"><tr><td colspan="7" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/performance.js"></script>
+  <script>
+    HrpLayout.init({ title: 'Performance Evaluations', match: 'performance/evaluations' }).then(() => HrpPerformance.initEvaluationsPage());
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!--
+  Generic confirm/info modal fragment, reused by list pages for delete
+  confirmations and simple message dialogs. JS API: HrpModal.confirm(msg)
+  returns a Promise<boolean>; HrpModal.info(title, msg) just displays.
+-->
+<div class="modal fade" id="hrpModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hrpModalTitle">Confirm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="hrpModalBody">Are you sure?</div>
+      <div class="modal-footer" id="hrpModalFooter">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="hrpModalConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="hrp-login-wrap">
+    <div class="hrp-login-card">
+      <div class="text-center mb-4">
+        <div class="fw-bold fs-4 text-dark">HR Plus</div>
+        <div class="text-muted-sm">Integrated Human Resource Information System</div>
+      </div>
+
+      <form id="hrp-login-form">
+        <div class="mb-3">
+          <label class="form-label">Username or Email</label>
+          <input type="text" class="form-control" id="hrp-username" required autofocus>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="hrp-password" required>
+        </div>
+        <div class="alert alert-danger d-none" id="hrp-login-error"></div>
+        <button type="submit" class="btn btn-primary w-100" id="hrp-login-btn">
+          <span id="hrp-login-btn-text">Sign In</span>
+        </button>
+      </form>
+
+      <div class="mt-4 text-muted-sm">
+        <strong>Demo accounts</strong> (seeded data):
+        <ul class="mb-0 ps-3">
+          <li>admin / Admin@12345 <span class="text-muted">(ADMIN)</span></li>
+          <li>hr.manager / HrManager@12345 <span class="text-muted">(HR_MANAGER)</span></li>
+          <li>dept.manager / Manager@12345 <span class="text-muted">(MANAGER)</span></li>
+          <li>employee.demo / Employee@12345 <span class="text-muted">(EMPLOYEE)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    if (HrpAuth.isLoggedIn()) {
+      window.location.href = 'pages/dashboard/organization.html';
+    }
+
+    const ROLE_LANDING_PAGE = {
+      ADMIN: 'pages/dashboard/organization.html',
+      HR_MANAGER: 'pages/dashboard/organization.html',
+      MANAGER: 'pages/dashboard/department.html',
+      EMPLOYEE: 'pages/dashboard/employee.html',
+    };
+
+    document.getElementById('hrp-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById('hrp-login-error');
+      const btn = document.getElementById('hrp-login-btn');
+      const btnText = document.getElementById('hrp-login-btn-text');
+      errorBox.classList.add('d-none');
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Signing in...';
+
+      try {
+        const username = document.getElementById('hrp-username').value.trim();
+        const password = document.getElementById('hrp-password').value;
+        const user = await HrpAuth.login(username, password);
+        window.location.href = ROLE_LANDING_PAGE[user.role?.name] || 'pages/dashboard/organization.html';
+      } catch (err) {
+        errorBox.textContent = err.message || 'Login failed. Please check your credentials.';
+        errorBox.classList.remove('d-none');
+        btn.disabled = false;
+        btnText.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

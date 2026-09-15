@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - KPI Performance View</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">KPI Performance View</h5>
+          <div class="d-flex gap-2">
+            <a href="definitions.html" class="btn btn-outline-secondary btn-sm">Definitions</a>
+            <a href="assignments.html" class="btn btn-outline-secondary btn-sm">Assignments</a>
+            <a href="measurements.html" class="btn btn-outline-secondary btn-sm">Measurements</a>
+          </div>
+        </div>
+
+        <form id="hrp-perf-filter-form" class="hrp-card mb-3 d-flex flex-wrap gap-2 align-items-end">
+          <div><label class="form-label">Employee</label><select class="form-select form-select-sm" id="hrp-perf-employee" style="width:220px"></select></div>
+          <div><label class="form-label">Period Start</label><input type="date" class="form-control form-control-sm" id="hrp-perf-start"></div>
+          <div><label class="form-label">Period End</label><input type="date" class="form-control form-control-sm" id="hrp-perf-end"></div>
+          <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        </form>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-3">
+            <div class="hrp-card hrp-stat-tile">
+              <div class="stat-label">Overall KPI Score</div>
+              <div class="stat-value" id="hrp-perf-overall">-</div>
+            </div>
+          </div>
+          <div class="col-lg-9">
+            <div class="hrp-card d-flex align-items-center h-100" id="hrp-perf-weight-check"></div>
+          </div>
+        </div>
+
+        <div class="hrp-table-card">
+          <div class="table-responsive">
+            <table class="table hrp-table mb-0">
+              <thead><tr><th>KPI</th><th>Category</th><th>Target</th><th>Actual</th><th>Achievement</th><th>Weight</th><th>Weighted Score</th></tr></thead>
+              <tbody id="hrp-perf-detail-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/kpi.js"></script>
+  <script>
+    HrpLayout.init({ title: 'KPI Performance View', match: 'kpi/definitions' }).then(() => HrpKpi.initPerformanceViewPage());
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - KPI Assignments</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">KPI Assignments</h5>
+          <div class="d-flex gap-2">
+            <a href="definitions.html" class="btn btn-outline-secondary btn-sm">Definitions</a>
+            <a href="measurements.html" class="btn btn-outline-secondary btn-sm">Measurements</a>
+            <a href="performance.html" class="btn btn-outline-secondary btn-sm">Performance View</a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Assign KPI to Employee</h6>
+              <form id="hrp-assign-kpi-form">
+                <div class="mb-2"><label class="form-label">Employee</label><select class="form-select form-select-sm" id="hrp-assign-employee" required></select></div>
+                <div class="mb-2"><label class="form-label">KPI</label><select class="form-select form-select-sm" id="hrp-assign-kpi" required></select></div>
+                <div class="mb-2"><label class="form-label">Weight % (optional override)</label><input type="number" step="0.01" class="form-control form-control-sm" id="hrp-assign-weight"></div>
+                <div class="mb-3"><label class="form-label">Effective From</label><input type="date" class="form-control form-control-sm" id="hrp-assign-date" required></div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Assign KPI</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Current Assignments</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Employee</th><th>KPI</th><th>Weight</th><th>Effective From</th><th>Status</th></tr></thead>
+                  <tbody id="hrp-assignment-table"><tr><td colspan="5" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/kpi.js"></script>
+  <script>
+    HrpLayout.init({ title: 'KPI Assignments', match: 'kpi/definitions' }).then(() => HrpKpi.initAssignmentsPage());
+  </script>
+</body>
+</html>

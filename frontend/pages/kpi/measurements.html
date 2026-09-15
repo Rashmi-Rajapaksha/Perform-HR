@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Plus - KPI Measurements</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/tables.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+  <div class="hrp-app">
+    <aside class="hrp-sidebar" id="hrp-sidebar-mount"></aside>
+    <div class="hrp-main">
+      <header class="hrp-topbar" id="hrp-topbar-mount"></header>
+      <main class="hrp-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">KPI Measurements</h5>
+          <div class="d-flex gap-2">
+            <a href="definitions.html" class="btn btn-outline-secondary btn-sm">Definitions</a>
+            <a href="assignments.html" class="btn btn-outline-secondary btn-sm">Assignments</a>
+            <a href="performance.html" class="btn btn-outline-secondary btn-sm">Performance View</a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="hrp-card">
+              <h6>Record / View Measurement</h6>
+              <form id="hrp-measurement-form">
+                <div class="mb-2"><label class="form-label">Assignment</label><select class="form-select form-select-sm" id="hrp-meas-assignment"></select></div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><label class="form-label">Period Start</label><input type="date" class="form-control form-control-sm" id="hrp-meas-start" required></div>
+                  <div class="col-6"><label class="form-label">Period End</label><input type="date" class="form-control form-control-sm" id="hrp-meas-end" required></div>
+                </div>
+                <div class="mb-3"><label class="form-label">Actual Value</label><input type="number" step="0.01" class="form-control form-control-sm" id="hrp-meas-actual" required></div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Record Measurement</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="hrp-table-card">
+              <div class="hrp-table-toolbar"><strong>Measurement History</strong></div>
+              <div class="table-responsive">
+                <table class="table hrp-table mb-0">
+                  <thead><tr><th>Period</th><th>Actual</th><th>Achievement</th><th>Weighted Score</th><th>Source</th></tr></thead>
+                  <tbody id="hrp-measurement-table"><tr><td colspan="5" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/kpi.js"></script>
+  <script>
+    HrpLayout.init({ title: 'KPI Measurements', match: 'kpi/definitions' }).then(() => {
+      HrpKpi.initMeasurementsPage();
+      document.getElementById('hrp-meas-assignment').addEventListener('change', () => HrpKpi.loadMeasurements());
+    });
+  </script>
+</body>
+</html>

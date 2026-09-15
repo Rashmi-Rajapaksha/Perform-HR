@@ -1,0 +1,15 @@
+<!--
+  Reusable "Management Alerts" panel fragment. Injected by dashboard
+  pages; populated at runtime by dashboard.js from GET /dashboard/alerts.
+  Usage: fetch this file, inject into a container, then call
+  HrpAlerts.render(containerEl, alerts) from dashboard.js.
+-->
+<div class="hrp-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h6 class="mb-0"><i class="bi bi-exclamation-triangle text-warning me-1"></i> Management Alerts</h6>
+    <span class="badge bg-light text-dark" id="hrp-alert-count">0</span>
+  </div>
+  <div id="hrp-alert-list">
+    <p class="text-muted-sm mb-0">No active alerts.</p>
+  </div>
+</div>
