@@ -7,6 +7,24 @@ const HrpDashboard = (() => {
   const POLL_INTERVAL_MS = 60 * 1000;
   let chartInstances = {};
 
+  function chartsAvailable() {
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js failed to load. Check your internet connection or CDN access.');
+      const canvases = document.querySelectorAll('canvas[id^="hrp-"]');
+      canvases.forEach((canvas) => {
+        const parent = canvas.parentElement;
+        if (parent && !parent.querySelector('.hrp-chart-error')) {
+          const msg = document.createElement('div');
+          msg.className = 'hrp-chart-error text-muted-sm p-2';
+          msg.textContent = 'Chart could not be loaded. Please check the Chart.js library connection.';
+          parent.appendChild(msg);
+        }
+      });
+      return false;
+    }
+    return true;
+  }
+
   function destroyChart(key) {
     if (chartInstances[key]) {
       chartInstances[key].destroy();
@@ -55,6 +73,7 @@ const HrpDashboard = (() => {
   }
 
   async function loadOrganizationDashboard() {
+    if (!chartsAvailable()) return;
     const res = await HrpApi.get('/dashboard/organization');
     const d = res.data;
 
@@ -120,6 +139,7 @@ const HrpDashboard = (() => {
   }
 
   async function loadDepartmentDashboard(departmentId) {
+    if (!chartsAvailable()) return;
     const res = await HrpApi.get(`/dashboard/department/${departmentId}`);
     const d = res.data;
 
@@ -184,6 +204,7 @@ const HrpDashboard = (() => {
   }
 
   async function loadEmployeeDashboard(employeeId) {
+    if (!chartsAvailable()) return;
     const path = employeeId ? `/dashboard/employee/${employeeId}` : '/dashboard/employee/me';
     const res = await HrpApi.get(path);
     const d = res.data;
