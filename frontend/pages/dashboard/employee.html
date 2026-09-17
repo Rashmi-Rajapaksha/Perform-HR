@@ -55,15 +55,20 @@
             </div>
           </div>
           <div class="col-lg-6">
-            <div class="hrp-card">
-              <h6>Current KPI Targets</h6>
-              <div class="table-responsive">
-                <table class="table hrp-table table-sm">
-                  <thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Achievement</th><th>Weight</th></tr></thead>
-                  <tbody id="hrp-kpi-detail-table"></tbody>
-                </table>
-              </div>
+            <div class="hrp-card hrp-chart-card">
+              <h6>KPI Achievement (Target vs Actual)</h6>
+              <canvas id="hrp-kpi-chart"></canvas>
             </div>
+          </div>
+        </div>
+
+        <div class="hrp-card mb-3">
+          <h6>Current KPI Targets</h6>
+          <div class="table-responsive">
+            <table class="table hrp-table table-sm">
+              <thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Achievement</th><th>Weight</th></tr></thead>
+              <tbody id="hrp-kpi-detail-table"></tbody>
+            </table>
           </div>
         </div>
 

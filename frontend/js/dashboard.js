@@ -97,6 +97,24 @@ const HrpDashboard = (() => {
       });
     }
 
+    const attendanceCtx = document.getElementById('hrp-attendance-chart');
+    if (attendanceCtx) {
+      destroyChart('attendance');
+      const other = Math.max(0, d.totalEmployees - d.presentEmployees - d.absentEmployees);
+      chartInstances.attendance = new Chart(attendanceCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent', 'Other / Not Recorded'],
+          datasets: [{ data: [d.presentEmployees, d.absentEmployees, other], backgroundColor: ['#16a34a', '#dc2626', '#e5e7eb'] }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+        },
+      });
+    }
+
     const stamp = document.getElementById('hrp-last-updated');
     if (stamp) stamp.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
   }
@@ -114,6 +132,26 @@ const HrpDashboard = (() => {
 
     document.getElementById('hrp-dept-name').textContent = d.departmentName;
     renderRankingList(document.getElementById('hrp-employee-ranking'), d.employeeRanking, { scoreKey: 'score' });
+
+    const rankingCtx = document.getElementById('hrp-ranking-chart');
+    if (rankingCtx) {
+      destroyChart('ranking');
+      const top = d.employeeRanking.slice(0, 10);
+      chartInstances.ranking = new Chart(rankingCtx, {
+        type: 'bar',
+        data: {
+          labels: top.map((r) => r.name),
+          datasets: [{ label: 'KPI Score (%)', data: top.map((r) => r.score), backgroundColor: '#2453ff' }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { beginAtZero: true, max: 150 } },
+          plugins: { legend: { display: false } },
+        },
+      });
+    }
 
     const trendCtx = document.getElementById('hrp-dept-trend-chart');
     if (trendCtx) {
@@ -171,6 +209,28 @@ const HrpDashboard = (() => {
           (k) => `<tr><td>${HrpUtils.escapeHtml(k.kpiName)}</td><td>${k.target}</td><td>${k.actual}</td><td>${k.achievementPercentage}%</td><td>${k.weight}%</td></tr>`
         )
         .join('') || '<tr><td colspan="5" class="text-center text-muted-sm">No KPIs assigned</td></tr>';
+    }
+
+    const kpiCtx = document.getElementById('hrp-kpi-chart');
+    if (kpiCtx) {
+      destroyChart('kpi');
+      const details = d.kpi.details || [];
+      chartInstances.kpi = new Chart(kpiCtx, {
+        type: 'bar',
+        data: {
+          labels: details.map((k) => k.kpiName),
+          datasets: [
+            { label: '100% Target Reference', data: details.map(() => 100), backgroundColor: '#e5e7eb' },
+            { label: 'Achievement %', data: details.map((k) => k.achievementPercentage), backgroundColor: '#2453ff' },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, max: 150 } },
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+        },
+      });
     }
 
     const historyCtx = document.getElementById('hrp-history-chart');
