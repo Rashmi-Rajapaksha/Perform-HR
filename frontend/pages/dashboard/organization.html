@@ -42,7 +42,16 @@
           </div>
           <div class="col-lg-3">
             <div class="hrp-card hrp-chart-card">
-              <h6>Today's Attendance</h6>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-calendar-check text-primary" aria-hidden="true"></i>
+                <h6 class="mb-0" id="hrp-attendance-title">Attendance</h6>
+              </div>
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text" aria-hidden="true"><i class="bi bi-calendar3"></i></span>
+                <label class="visually-hidden" for="hrp-dashboard-date">Attendance date</label>
+                <input id="hrp-dashboard-date" type="date" class="form-control" aria-label="Attendance date">
+                <button id="hrp-dashboard-date-apply" type="button" class="btn btn-primary">Apply</button>
+              </div>
               <canvas id="hrp-attendance-chart"></canvas>
             </div>
           </div>
@@ -75,7 +84,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
           onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';"></script>
   <script src="../../js/api.js"></script>
   <script src="../../js/auth.js"></script>
@@ -84,7 +93,7 @@
   <script src="../../js/dashboard.js"></script>
   <script>
     HrpLayout.init({ title: 'Organization Dashboard', match: 'dashboard/organization' }).then(() => {
-      HrpDashboard.startPolling(HrpDashboard.loadOrganizationDashboard);
+      HrpDashboard.startDashboard(HrpDashboard.loadOrganizationDashboard);
     });
   </script>
 </body>

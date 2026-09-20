@@ -1,11 +1,24 @@
 /**
- * Renders the three dashboard levels (organization / department /
- * employee) and polls the API roughly every 60 seconds for near
- * real-time updates, per the project's REST-polling requirement.
+ * Renders the three dashboard levels (organization / department / employee).
  */
 const HrpDashboard = (() => {
-  const POLL_INTERVAL_MS = 60 * 1000;
   let chartInstances = {};
+  let dashboardLoader = null;
+
+  function today() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function dateRangeParams() {
+    const selectedDate = document.getElementById('hrp-dashboard-date')?.value || today();
+    const startDate = selectedDate;
+    const endDate = selectedDate;
+    return `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+  }
 
   function chartsAvailable() {
     if (typeof Chart === 'undefined') {
@@ -74,8 +87,13 @@ const HrpDashboard = (() => {
 
   async function loadOrganizationDashboard() {
     if (!chartsAvailable()) return;
-    const res = await HrpApi.get('/dashboard/organization');
+    const res = await HrpApi.get(`/dashboard/organization${dateRangeParams()}`);
     const d = res.data;
+
+    const attendanceTitle = document.getElementById('hrp-attendance-title');
+    if (attendanceTitle) {
+      attendanceTitle.textContent = `Attendance · ${d.attendanceDate || today()}`;
+    }
 
     renderStatTiles(document.getElementById('hrp-stat-grid'), [
       { label: 'Total Employees', value: d.totalEmployees },
@@ -140,7 +158,7 @@ const HrpDashboard = (() => {
 
   async function loadDepartmentDashboard(departmentId) {
     if (!chartsAvailable()) return;
-    const res = await HrpApi.get(`/dashboard/department/${departmentId}`);
+    const res = await HrpApi.get(`/dashboard/department/${departmentId}${dateRangeParams()}`);
     const d = res.data;
 
     renderStatTiles(document.getElementById('hrp-stat-grid'), [
@@ -205,7 +223,7 @@ const HrpDashboard = (() => {
 
   async function loadEmployeeDashboard(employeeId) {
     if (!chartsAvailable()) return;
-    const path = employeeId ? `/dashboard/employee/${employeeId}` : '/dashboard/employee/me';
+    const path = `${employeeId ? `/dashboard/employee/${employeeId}` : '/dashboard/employee/me'}${dateRangeParams()}`;
     const res = await HrpApi.get(path);
     const d = res.data;
 
@@ -275,10 +293,17 @@ const HrpDashboard = (() => {
     }
   }
 
-  function startPolling(loaderFn) {
+  function startDashboard(loaderFn) {
+    dashboardLoader = loaderFn;
+    const applyButton = document.getElementById('hrp-dashboard-date-apply');
+    if (applyButton && !applyButton.dataset.bound) {
+      applyButton.dataset.bound = 'true';
+      applyButton.addEventListener('click', () => {
+        if (dashboardLoader) dashboardLoader().catch(HrpUtils.showError);
+      });
+    }
     loaderFn().catch(HrpUtils.showError);
-    return setInterval(() => loaderFn().catch(HrpUtils.showError), POLL_INTERVAL_MS);
   }
 
-  return { loadOrganizationDashboard, loadDepartmentDashboard, loadEmployeeDashboard, startPolling };
+  return { loadOrganizationDashboard, loadDepartmentDashboard, loadEmployeeDashboard, startDashboard };
 })();

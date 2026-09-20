@@ -3,7 +3,7 @@ const ApiResponse = require('../utils/apiResponse');
 const dashboardService = require('../services/dashboardService');
 
 const organization = asyncHandler(async (req, res) => {
-  const data = await dashboardService.getOrganizationDashboard();
+  const data = await dashboardService.getOrganizationDashboard(req.query.startDate || req.query.date);
   return ApiResponse.success(res, { message: 'Organization dashboard retrieved', data });
 });
 

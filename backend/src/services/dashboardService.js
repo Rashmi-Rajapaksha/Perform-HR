@@ -23,18 +23,19 @@ const ALERT_THRESHOLDS = {
 };
 
 /** Organization-wide dashboard: headline counts + trends + alerts. */
-async function getOrganizationDashboard() {
+async function getOrganizationDashboard(selectedDate) {
   const today = dayjs().format('YYYY-MM-DD');
   const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');
+  const attendanceDate = isValidDateOnly(selectedDate) ? selectedDate : today;
 
   const totalEmployees = await Employee.count({ where: { employment_status: 'ACTIVE' } });
 
-  const todaysAttendance = await AttendanceRecord.findAll({ where: { date: today } });
-  const presentToday = todaysAttendance.filter((a) =>
+  const attendanceRecords = await AttendanceRecord.findAll({ where: { date: attendanceDate } });
+  const presentEmployees = attendanceRecords.filter((a) =>
     [ATTENDANCE_STATUS.PRESENT, ATTENDANCE_STATUS.HALF_DAY].includes(a.status)
   ).length;
-  const absentToday = todaysAttendance.filter((a) => a.status === ATTENDANCE_STATUS.ABSENT).length;
-  const attendancePercentage = totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 10000) / 100 : 0;
+  const absentEmployees = attendanceRecords.filter((a) => a.status === ATTENDANCE_STATUS.ABSENT).length;
+  const attendancePercentage = totalEmployees > 0 ? Math.round((presentEmployees / totalEmployees) * 10000) / 100 : 0;
 
   const latestPeriod = await PayrollPeriod.findOne({ order: [['start_date', 'DESC']] });
   let payrollCost = 0;
@@ -76,8 +77,9 @@ async function getOrganizationDashboard() {
 
   return {
     totalEmployees,
-    presentEmployees: presentToday,
-    absentEmployees: absentToday,
+    attendanceDate,
+    presentEmployees,
+    absentEmployees,
     attendancePercentage,
     averageKpiScore,
     payrollCost,
@@ -89,6 +91,11 @@ async function getOrganizationDashboard() {
     managementAlerts: alerts,
     generatedAt: new Date().toISOString(),
   };
+}
+
+function isValidDateOnly(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  return dayjs(value).isValid() && dayjs(value).format('YYYY-MM-DD') === value;
 }
 
 function attachScore(employees, scores) {
