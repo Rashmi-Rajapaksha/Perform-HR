@@ -34,10 +34,10 @@ describe('GET /api/v1/employees', () => {
   });
 });
 
-describe('POST /api/v1/employees', () => {
+describe('POST /api/v1/employee', () => {
   test('rejects a payload missing required fields', async () => {
     const res = await request(app)
-      .post('/api/v1/employees')
+      .post('/api/v1/employee')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ first_name: 'Incomplete' });
     expect(res.status).toBe(422);

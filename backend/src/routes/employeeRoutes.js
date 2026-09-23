@@ -16,29 +16,8 @@ router.get('/', requirePermission(PERMISSIONS.EMPLOYEE_VIEW, PERMISSIONS.EMPLOYE
 router.get('/:id', idParamRule, validate, requirePermission(PERMISSIONS.EMPLOYEE_VIEW, PERMISSIONS.EMPLOYEE_MANAGE), employeeController.getById);
 router.get('/:id/direct-reports', idParamRule, validate, requirePermission(PERMISSIONS.EMPLOYEE_VIEW, PERMISSIONS.EMPLOYEE_MANAGE), employeeController.directReports);
 
-router.post(
-  '/',
-  createEmployeeRules,
-  validate,
-  requirePermission(PERMISSIONS.EMPLOYEE_MANAGE),
-  auditMiddleware('CREATE', 'EMPLOYEE'),
-  employeeController.create
-);
-router.put(
-  '/:id',
-  updateEmployeeRules,
-  validate,
-  requirePermission(PERMISSIONS.EMPLOYEE_MANAGE),
-  auditMiddleware('UPDATE', 'EMPLOYEE'),
-  employeeController.update
-);
-router.patch(
-  '/:id/deactivate',
-  idParamRule,
-  validate,
-  requirePermission(PERMISSIONS.EMPLOYEE_MANAGE),
-  auditMiddleware('UPDATE', 'EMPLOYEE'),
-  employeeController.deactivate
-);
+router.post('/', createEmployeeRules, validate, requirePermission(PERMISSIONS.EMPLOYEE_MANAGE), auditMiddleware('CREATE', 'EMPLOYEE'), employeeController.create);
+router.put('/:id', updateEmployeeRules, validate, requirePermission(PERMISSIONS.EMPLOYEE_MANAGE), auditMiddleware('UPDATE', 'EMPLOYEE'), employeeController.update);
+router.patch('/:id/deactivate', idParamRule, validate, requirePermission(PERMISSIONS.EMPLOYEE_MANAGE), auditMiddleware('UPDATE', 'EMPLOYEE'), employeeController.deactivate);
 
 module.exports = router;

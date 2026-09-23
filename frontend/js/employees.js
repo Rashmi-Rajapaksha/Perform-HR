@@ -32,9 +32,9 @@ const HrpEmployees = (() => {
     const tbody = document.getElementById('hrp-employee-table-body');
     tbody.innerHTML = res.data.length
       ? res.data
-          .map(
-            (e) => `
+        .map((e) => `
       <tr>
+        <td>${HrpUtils.escapeHtml(e.id)}</td>
         <td>${HrpUtils.escapeHtml(e.employee_code)}</td>
         <td>${HrpUtils.escapeHtml(e.first_name)} ${HrpUtils.escapeHtml(e.last_name)}</td>
         <td>${HrpUtils.escapeHtml(e.department?.name || '-')}</td>
@@ -42,12 +42,12 @@ const HrpEmployees = (() => {
         <td>${HrpUtils.escapeHtml(e.manager ? `${e.manager.first_name} ${e.manager.last_name}` : '-')}</td>
         <td>${HrpUtils.statusBadge(e.employment_status)}</td>
         <td class="hrp-row-actions">
-          <a class="btn btn-outline-secondary" href="view.html?id=${e.id}"><i class="bi bi-eye"></i></a>
-          <a class="btn btn-outline-primary" href="edit.html?id=${e.id}"><i class="bi bi-pencil"></i></a>
+          <a class="btn btn-outline-secondary" href="/pages/employees/view.html?id=${e.id}"><i class="bi bi-eye"></i></a>
+          <a class="btn btn-outline-primary" href="/pages/employees/edit.html?id=${e.id}"><i class="bi bi-pencil"></i></a>
         </td>
       </tr>`
-          )
-          .join('')
+        )
+        .join('')
       : '<tr><td colspan="7" class="text-center text-muted-sm py-4">No employees found</td></tr>';
 
     renderPagination(res.meta);
@@ -110,6 +110,7 @@ const HrpEmployees = (() => {
 
   function readForm() {
     return {
+      id: document.getElementById('hrp-form-code').value.trim(),
       employee_code: document.getElementById('hrp-form-code').value.trim(),
       first_name: document.getElementById('hrp-form-first-name').value.trim(),
       last_name: document.getElementById('hrp-form-last-name').value.trim(),
@@ -165,7 +166,7 @@ const HrpEmployees = (() => {
       try {
         const payload = readForm();
         delete payload.employee_code;
-        await HrpApi.put(`/employees/${id}`, payload);
+        await HrpApi.put(`/employee/${id}`, payload);
         HrpUtils.showToast('Employee updated successfully');
         window.location.href = `view.html?id=${id}`;
       } catch (err) {
@@ -191,7 +192,7 @@ const HrpEmployees = (() => {
     document.getElementById('hrp-view-email').textContent = e.email || '-';
     document.getElementById('hrp-view-phone').textContent = e.phone || '-';
     document.getElementById('hrp-view-schedule').textContent = e.work_schedule_type;
-    document.getElementById('hrp-edit-link').href = `edit.html?id=${id}`;
+    document.getElementById('hrp-edit-link').href = `/frontend/pages/employees/edit.html?id=${id}`;
 
     try {
       const reports = await HrpApi.get(`/employees/${id}/direct-reports`);
