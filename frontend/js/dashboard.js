@@ -78,8 +78,9 @@ const HrpDashboard = (() => {
       .map(
         (item, idx) => `
       <li>
-        <span><span class="rank-badge">${idx + 1}</span>${HrpUtils.escapeHtml(item[nameKey] || `${item.first_name || ''} ${item.last_name || ''}`)}</span>
-        <span class="hrp-perf-score ${HrpUtils.scoreClass(item[scoreKey])}">${Number(item[scoreKey] || 0).toFixed(1)}%</span>
+        <span><span class="rank-badge">${idx + 1 + ` :`}</span>${HrpUtils.escapeHtml(item[nameKey] || `${item.first_name || ''} ${item.last_name || ''}`)}</span>
+       
+  
       </li>`
       )
       .join('')}</ul>`;

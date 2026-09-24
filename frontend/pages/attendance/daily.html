@@ -25,13 +25,17 @@
         <div class="row g-3">
           <div class="col-lg-4">
             <div class="hrp-card">
-              <h6>Mark Attendance Manually</h6>
+              <h6>Add Daily Attendance</h6>
               <form id="hrp-mark-attendance-form">
+                <div class="mb-2">
+                  <label class="form-label">Date</label>
+                  <input type="date" class="form-control form-control-sm" id="hrp-mark-date" required>
+                </div>
                 <div class="mb-2">
                   <label class="form-label">Employee</label>
                   <select class="form-select form-select-sm" id="hrp-mark-employee" required></select>
                 </div>
-                <div class="mb-3">
+                <div class="mb-2">
                   <label class="form-label">Status</label>
                   <select class="form-select form-select-sm" id="hrp-mark-status" required>
                     <option value="PRESENT">Present</option>
@@ -41,6 +45,25 @@
                     <option value="HOLIDAY">Holiday</option>
                     <option value="OFF_DAY">Off Day</option>
                   </select>
+                </div>
+                <div id="hrp-mark-time-fields">
+                  <div class="mb-2">
+                    <label class="form-label">Shift</label>
+                    <select class="form-select form-select-sm" id="hrp-mark-shift">
+                      <option value="">Employee's assigned shift</option>
+                    </select>
+                  </div>
+                  <div class="row g-2 mb-1">
+                    <div class="col-6">
+                      <label class="form-label">Check In <span class="text-danger">*</span></label>
+                      <input type="time" class="form-control form-control-sm" id="hrp-mark-check-in">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label">Check Out <span class="text-danger">*</span></label>
+                      <input type="time" class="form-control form-control-sm" id="hrp-mark-check-out">
+                    </div>
+                  </div>
+                  <div class="text-muted-sm mb-3">Late and overtime minutes are calculated from the shift. A check-out earlier than check-in counts as the next morning.</div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm w-100">Save</button>
               </form>

@@ -1,7 +1,7 @@
 const dayjs = require('dayjs');
 const { Op } = require('sequelize');
 const { AttendanceRecord, Employee, Shift, EmployeeShiftAssignment, Holiday } = require('../models');
-const { ATTENDANCE_STATUS } = require('../constants/statuses');
+const { ATTENDANCE_STATUS, WORKED_ATTENDANCE_STATUSES } = require('../constants/statuses');
 const { getPagination, buildPaginationMeta } = require('../utils/pagination');
 
 /** Finds the shift an employee is assigned to as of a given date. */
@@ -30,7 +30,9 @@ function computeMinutes({ checkIn, checkOut, shiftStart, shiftEnd, dateStr }) {
   }
 
   const scheduledStart = dayjs(`${dateStr} ${shiftStart}`);
-  const scheduledEnd = dayjs(`${dateStr} ${shiftEnd}`);
+  let scheduledEnd = dayjs(`${dateStr} ${shiftEnd}`);
+  // Night shifts (e.g. 22:00 - 06:00) end on the following day.
+  if (!scheduledEnd.isAfter(scheduledStart)) scheduledEnd = scheduledEnd.add(1, 'day');
   const actualIn = dayjs(checkIn);
   const actualOut = dayjs(checkOut);
 
@@ -105,20 +107,82 @@ async function checkOut({ employeeId }) {
   return record;
 }
 
+/**
+ * Creates or updates one employee's attendance record for a given date.
+ * check_in / check_out are clock times ("HH:mm") on that date, required for
+ * PRESENT / HALF_DAY (enforced by the validator) and ignored otherwise; a check-out
+ * earlier than the check-in is taken as the next morning (night shift).
+ * Late / early-leave / overtime minutes are derived from the shift, which
+ * defaults to the employee's assigned shift for that date.
+ * Returns { record, created }.
+ */
 async function markManualAttendance({ employee_id, date, status, shift_id, check_in, check_out }) {
-  const [record] = await AttendanceRecord.findOrCreate({
+  const employee = await Employee.findByPk(employee_id, { attributes: ['id'] });
+  if (!employee) {
+    const err = new Error('Employee not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  let shift = null;
+  if (shift_id) {
+    shift = await Shift.findByPk(shift_id);
+    if (!shift) {
+      const err = new Error('Shift not found');
+      err.statusCode = 404;
+      throw err;
+    }
+  }
+
+  const [record, created] = await AttendanceRecord.findOrCreate({
     where: { employee_id, date },
-    defaults: { employee_id, date, status, shift_id: shift_id || null },
+    defaults: { employee_id, date, status, shift_id: shift?.id || null },
   });
+
+  if (!shift && record.shift_id) shift = await Shift.findByPk(record.shift_id);
+  if (!shift) shift = await getAssignedShift(employee_id, date);
+
+  // Absent / leave / holiday / off days carry no clock times or minutes.
+  if (!WORKED_ATTENDANCE_STATUSES.includes(status)) {
+    await record.update({
+      status,
+      shift_id: shift?.id || null,
+      check_in: null,
+      check_out: null,
+      regular_minutes: 0,
+      late_minutes: 0,
+      early_leave_minutes: 0,
+      overtime_minutes: 0,
+    });
+    return { record, created };
+  }
+
+  const checkInAt = dayjs(`${date} ${check_in}`);
+  let checkOutAt = dayjs(`${date} ${check_out}`);
+  if (!checkOutAt.isAfter(checkInAt)) checkOutAt = checkOutAt.add(1, 'day');
+
+  const minutes = shift
+    ? computeMinutes({
+      checkIn: checkInAt,
+      checkOut: checkOutAt,
+      shiftStart: shift.start_time,
+      shiftEnd: shift.end_time,
+      dateStr: date,
+    })
+    : { regularMinutes: 0, lateMinutes: 0, earlyLeaveMinutes: 0, overtimeMinutes: 0 };
 
   await record.update({
     status,
-    shift_id: shift_id ?? record.shift_id,
-    check_in: check_in ?? record.check_in,
-    check_out: check_out ?? record.check_out,
+    shift_id: shift?.id || null,
+    check_in: checkInAt.toDate(),
+    check_out: checkOutAt.toDate(),
+    regular_minutes: minutes.regularMinutes,
+    late_minutes: minutes.lateMinutes,
+    early_leave_minutes: minutes.earlyLeaveMinutes,
+    overtime_minutes: minutes.overtimeMinutes,
   });
 
-  return record;
+  return { record, created };
 }
 
 async function listAttendance(query) {

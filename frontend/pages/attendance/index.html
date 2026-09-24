@@ -34,27 +34,50 @@
               <h6>Apply for Leave</h6>
               <form id="hrp-leave-form">
                 <div class="mb-2">
-                  <label class="form-label">Leave Type</label>
-                  <select class="form-select form-select-sm" id="hrp-leave-type" required></select>
-                </div>
-                <div class="row g-2 mb-2">
-                  <div class="col-6">
-                    <label class="form-label">Start Date</label>
-                    <input type="date" class="form-control form-control-sm" id="hrp-leave-start" required>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label">End Date</label>
-                    <input type="date" class="form-control form-control-sm" id="hrp-leave-end" required>
-                  </div>
+                  <label class="form-label">Employee <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" id="hrp-leave-employee" required></select>
                 </div>
                 <div class="mb-2">
-                  <label class="form-label">Days</label>
-                  <input type="number" step="0.5" min="0.5" class="form-control form-control-sm" id="hrp-leave-days" value="1">
+                  <label class="form-label">Leave or Half Day <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" id="hrp-leave-mode" required>
+                    <option value="LEAVE">Leave</option>
+                    <option value="HALF_DAY">Half Day</option>
+                  </select>
                 </div>
+
+                <div id="hrp-leave-fields">
+                  <div class="mb-2">
+                    <label class="form-label">Leave Type <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-sm" id="hrp-leave-type"></select>
+                  </div>
+                  <div class="row g-2 mb-2">
+                    <div class="col-6">
+                      <label class="form-label">Leave Start Date <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control form-control-sm" id="hrp-leave-start">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label">Leave End Date <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control form-control-sm" id="hrp-leave-end">
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">No of Days <span class="text-danger">*</span></label>
+                    <input type="number" step="0.5" min="0.5" class="form-control form-control-sm" id="hrp-leave-days" value="1">
+                  </div>
+                </div>
+
+                <div id="hrp-half-day-fields" hidden>
+                  <div class="mb-2">
+                    <label class="form-label">Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-sm" id="hrp-half-day-date">
+                  </div>
+                </div>
+
                 <div class="mb-3">
-                  <label class="form-label">Reason</label>
-                  <textarea class="form-control form-control-sm" id="hrp-leave-reason" rows="2"></textarea>
+                  <label class="form-label">Reason <span class="text-danger">*</span></label>
+                  <textarea class="form-control form-control-sm" id="hrp-leave-reason" rows="2" maxlength="255" required></textarea>
                 </div>
+                <div class="text-muted-sm mb-2">New applications are saved as <strong>Pending</strong> until approved or rejected.</div>
                 <button type="submit" class="btn btn-primary btn-sm w-100">Submit Application</button>
               </form>
             </div>

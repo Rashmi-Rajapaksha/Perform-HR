@@ -13,8 +13,20 @@ const getById = asyncHandler(async (req, res) => {
 });
 
 const create = asyncHandler(async (req, res) => {
-  const employee = await employeeService.createEmployee(req.body);
-  return ApiResponse.created(res, { message: 'Employee created', data: employee });
+  try {
+    const employee = await employeeService.createEmployee(req.body);
+    return ApiResponse.created(res, { message: 'Employee created', data: employee });
+    
+  } catch (error) {
+    const databaseError = error.original || error;
+    if (databaseError.code === 'ER_DUP_ENTRY') {
+      return ApiResponse.error(res, {
+        statusCode: 409,
+        message: 'An employee with this employee code, email, or phone number already exists.',
+      });
+    }
+    throw error;
+  }
 });
 
 const update = asyncHandler(async (req, res) => {

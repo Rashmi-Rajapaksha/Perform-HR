@@ -51,7 +51,9 @@ async function getEmployeeById(id) {
 }
 
 async function createEmployee(payload) {
-  const employee = await Employee.create(payload);
+  // id is auto-increment; never let the client choose it.
+  const { id, ...data } = payload;
+  const employee = await Employee.create(data);
   await EmploymentHistory.create({
     employee_id: employee.id,
     department_id: employee.department_id,

@@ -45,6 +45,18 @@ describe('attendanceService - computeMinutes', () => {
     expect(result.overtimeMinutes).toBe(90);
   });
 
+  test('night shift ending the next morning is measured across midnight', () => {
+    const result = computeMinutes({
+      checkIn: `${dateStr} 22:10:00`,
+      checkOut: '2026-03-03 06:30:00',
+      shiftStart: '22:00:00', shiftEnd: '06:00:00', dateStr,
+    });
+    expect(result.lateMinutes).toBe(10);
+    expect(result.earlyLeaveMinutes).toBe(0);
+    expect(result.overtimeMinutes).toBe(30);
+    expect(result.regularMinutes).toBe(470);
+  });
+
   test('missing check-in or check-out yields all zeros', () => {
     const result = computeMinutes({ checkIn: null, checkOut: null, shiftStart, shiftEnd, dateStr });
     expect(result).toEqual({ regularMinutes: 0, lateMinutes: 0, earlyLeaveMinutes: 0, overtimeMinutes: 0 });

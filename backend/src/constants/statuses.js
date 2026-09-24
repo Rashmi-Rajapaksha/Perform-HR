@@ -7,6 +7,9 @@ const ATTENDANCE_STATUS = Object.freeze({
   OFF_DAY: 'OFF_DAY',
 });
 
+// Statuses where the employee actually worked, so clock times apply.
+const WORKED_ATTENDANCE_STATUSES = Object.freeze([ATTENDANCE_STATUS.PRESENT, ATTENDANCE_STATUS.HALF_DAY]);
+
 const EMPLOYMENT_STATUS = Object.freeze({
   ACTIVE: 'ACTIVE',
   ON_LEAVE: 'ON_LEAVE',
@@ -60,6 +63,7 @@ const NOTIFICATION_TYPE = Object.freeze({
 
 module.exports = {
   ATTENDANCE_STATUS,
+  WORKED_ATTENDANCE_STATUSES,
   EMPLOYMENT_STATUS,
   WORK_SCHEDULE_TYPE,
   PAYROLL_STATUS,

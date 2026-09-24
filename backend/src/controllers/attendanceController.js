@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/apiResponse');
 const attendanceService = require('../services/attendanceService');
@@ -5,18 +6,23 @@ const { EmployeeLeave, LeaveType, Employee } = require('../models');
 const { LEAVE_STATUS } = require('../constants/statuses');
 
 const checkIn = asyncHandler(async (req, res) => {
-  const record = await attendanceService.checkIn(req.body);
+  const record = await attendanceService.checkIn({ employeeId: req.body.employee_id, shiftId: req.body.shift_id });
   return ApiResponse.success(res, { message: 'Checked in successfully', data: record });
 });
 
 const checkOut = asyncHandler(async (req, res) => {
-  const record = await attendanceService.checkOut(req.body);
+  const employeeId = req.body.employee_id || req.user.employee_id;
+  if (!employeeId) {
+    return ApiResponse.error(res, { message: 'No employee profile linked to this account', statusCode: 400 });
+  }
+  const record = await attendanceService.checkOut({ employeeId });
   return ApiResponse.success(res, { message: 'Checked out successfully', data: record });
 });
 
 const markManual = asyncHandler(async (req, res) => {
-  const record = await attendanceService.markManualAttendance(req.body);
-  return ApiResponse.success(res, { message: 'Attendance recorded', data: record });
+  const { record, created } = await attendanceService.markManualAttendance(req.body);
+  if (created) return ApiResponse.created(res, { message: 'Attendance recorded', data: record });
+  return ApiResponse.success(res, { message: 'Attendance updated', data: record });
 });
 
 const list = asyncHandler(async (req, res) => {
@@ -32,14 +38,54 @@ const summary = asyncHandler(async (req, res) => {
 
 // ----- Leave -----
 
+// Half-day applications are stored as a 0.5-day leave under this internal type,
+// which is created on first use and hidden from the leave-type picker.
+const HALF_DAY_LEAVE_CODE = 'HALF_DAY';
+
+async function getHalfDayLeaveType() {
+  const [type] = await LeaveType.findOrCreate({
+    where: { code: HALF_DAY_LEAVE_CODE },
+    defaults: { name: 'Half Day', code: HALF_DAY_LEAVE_CODE, is_paid: true },
+  });
+  return type;
+}
+
 const listLeaveTypes = asyncHandler(async (req, res) => {
-  const types = await LeaveType.findAll();
+  const types = await LeaveType.findAll({ where: { code: { [Op.ne]: HALF_DAY_LEAVE_CODE } }, order: [['id', 'ASC']] });
   return ApiResponse.success(res, { message: 'Leave types retrieved', data: types });
 });
 
+/** Every new application (leave or half day) starts as PENDING until approved / rejected. */
 const applyLeave = asyncHandler(async (req, res) => {
-  const leave = await EmployeeLeave.create({ ...req.body, status: LEAVE_STATUS.PENDING });
-  return ApiResponse.created(res, { message: 'Leave application submitted', data: leave });
+  const { employee_id, leave_mode, reason } = req.body;
+
+  const employee = await Employee.findByPk(employee_id, { attributes: ['id'] });
+  if (!employee) return ApiResponse.error(res, { message: 'Employee not found', statusCode: 404 });
+
+  let fields;
+  if (leave_mode === 'HALF_DAY') {
+    const halfDayType = await getHalfDayLeaveType();
+    fields = { leave_type_id: halfDayType.id, start_date: req.body.date, end_date: req.body.date, days: 0.5 };
+  } else {
+    const leaveType = await LeaveType.findByPk(req.body.leave_type_id);
+    if (!leaveType || leaveType.code === HALF_DAY_LEAVE_CODE) {
+      return ApiResponse.error(res, { message: 'Leave type not found', statusCode: 404 });
+    }
+    fields = {
+      leave_type_id: leaveType.id,
+      start_date: req.body.start_date,
+      end_date: req.body.end_date,
+      days: Number(req.body.days),
+    };
+  }
+
+  const leave = await EmployeeLeave.create({
+    employee_id,
+    ...fields,
+    reason: reason.trim(),
+    status: LEAVE_STATUS.PENDING,
+  });
+  return ApiResponse.created(res, { message: 'Leave application submitted (Pending approval)', data: leave });
 });
 
 const listLeaves = asyncHandler(async (req, res) => {
@@ -59,11 +105,20 @@ const listLeaves = asyncHandler(async (req, res) => {
 
 const decideLeave = asyncHandler(async (req, res) => {
   const { decision } = req.body; // APPROVED | REJECTED
-  const leave = await EmployeeLeave.findByPk(req.params.id);
+  if (![LEAVE_STATUS.APPROVED, LEAVE_STATUS.REJECTED].includes(decision)) {
+    return ApiResponse.error(res, { message: 'decision must be APPROVED or REJECTED', statusCode: 422 });
+  }
+  const leave = await EmployeeLeave.findByPk(req.params.id, { include: [{ model: LeaveType, as: 'leaveType' }] });
   if (!leave) return ApiResponse.error(res, { message: 'Leave application not found', statusCode: 404 });
+  if (leave.status !== LEAVE_STATUS.PENDING) {
+    return ApiResponse.error(res, { message: `Leave application is already ${leave.status.toLowerCase()}`, statusCode: 409 });
+  }
   await leave.update({ status: decision, approved_by: req.userId });
 
-  if (decision === LEAVE_STATUS.APPROVED) {
+  // A half day is still a working day: its attendance (HALF_DAY with check-in / check-out)
+  // is recorded from Daily Attendance, so only full leave days are marked here.
+  const isHalfDay = leave.leaveType?.code === HALF_DAY_LEAVE_CODE;
+  if (decision === LEAVE_STATUS.APPROVED && !isHalfDay) {
     const dayjs = require('dayjs');
     let current = dayjs(leave.start_date);
     const end = dayjs(leave.end_date);
