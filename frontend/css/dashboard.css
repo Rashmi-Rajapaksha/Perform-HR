@@ -10,6 +10,19 @@
 .hrp-chart-card { min-height: 320px; }
 .hrp-chart-card canvas { max-height: 260px; }
 
+/* Chart.js needs a dedicated, relatively positioned parent with a fixed height when maintainAspectRatio is false. */
+.hrp-chart-wrap { position: relative; width: 100%; height: 260px; }
+.hrp-chart-wrap-sm { height: 220px; }
+.hrp-chart-card .hrp-chart-wrap canvas { max-height: none; }
+.hrp-chart-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .hrp-ranking-list { list-style: none; padding: 0; margin: 0; }
 .hrp-ranking-list li {
   display: flex;

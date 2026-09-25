@@ -24,15 +24,15 @@ const DEFAULT_ACHIEVEMENT_CAP = 150;
  * Calculates achievement percentage for a single KPI measurement.
  *
  * Zero-value handling:
- * - If target is 0 or missing, achievement cannot be meaningfully computed
- *   as a ratio, so we return 0 (HIGHER_IS_BETTER) or 100 (LOWER_IS_BETTER,
- *   since "no target to exceed" is treated as fully met) — this keeps the
- *   result deterministic instead of throwing/NaN/Infinity.
- * - If actual is 0:
- *     - HIGHER_IS_BETTER -> 0% (nothing achieved)
- *     - LOWER_IS_BETTER  -> capped at the ceiling (division by zero would
- *       otherwise be Infinity; a lower-is-better metric hitting exactly
- *       zero, e.g. zero defects, is the best possible outcome)
+ * - HIGHER_IS_BETTER with target 0 or missing -> 0% (the ratio is undefined).
+ * - HIGHER_IS_BETTER with actual 0 -> 0% (nothing achieved).
+ * - LOWER_IS_BETTER with actual 0 -> capped at the ceiling (division by zero
+ *   would otherwise be Infinity; hitting exactly zero, e.g. zero defects, is
+ *   the best possible outcome).
+ * - LOWER_IS_BETTER with target 0 and actual > 0 (e.g. "zero safety
+ *   incidents" target missed) -> 100 / (1 + actual), so 1 incident = 50%,
+ *   2 = 33.33%, 3 = 25%. Every extra occurrence lowers the score instead of
+ *   all misses scoring the same.
  */
 function calculateAchievementPercentage({
   actualValue,
@@ -40,16 +40,17 @@ function calculateAchievementPercentage({
   direction,
   cap = DEFAULT_ACHIEVEMENT_CAP,
 }) {
+
+
   const actual = Number(actualValue) || 0;
   const target = Number(targetValue) || 0;
-
   let achievement;
 
   if (direction === KPI_DIRECTION.LOWER_IS_BETTER) {
     if (actual === 0) {
       achievement = cap; // best possible outcome (e.g. zero defects)
     } else if (target === 0) {
-      achievement = 100; // no target set to be "worse than" - treat as met
+      achievement = 100 / (1 + actual); // zero-tolerance target missed - falls with each occurrence
     } else {
       achievement = (target / actual) * 100;
     }
@@ -97,6 +98,13 @@ function calculateKpiResult({ actualValue, targetValue, direction, weight, cap }
  * weights sum to (approximately) 100, as required by the spec, and
  * returns a warning flag rather than throwing, so callers can decide how
  * strict to be (e.g. UI warning vs hard validation error).
+ *
+ * When the weights do not add up to 100, the sum is rescaled to a
+ * 100-weight basis so the score stays on the same scale as everyone else's:
+ *
+ *   overallKpiScore = Σ weighted_score × 100 / Σ weight
+ *
+ * (With valid weights this is identical to the plain sum.)
  */
 function aggregateKpiScore(results) {
   const totalWeight = results.reduce((sum, r) => sum + (Number(r.weight) || 0), 0);
@@ -106,8 +114,12 @@ function aggregateKpiScore(results) {
   );
   const weightsValid = Math.abs(totalWeight - 100) < 0.5; // tolerate rounding
 
+  let overall = totalWeightedScore;
+  if (!weightsValid && totalWeight > 0) overall = (totalWeightedScore * 100) / totalWeight;
+
   return {
-    overallKpiScore: Math.round(totalWeightedScore * 100) / 100,
+    overallKpiScore: Math.round(overall * 100) / 100,
+    rawWeightedScore: Math.round(totalWeightedScore * 100) / 100,
     totalWeight,
     weightsValid,
   };

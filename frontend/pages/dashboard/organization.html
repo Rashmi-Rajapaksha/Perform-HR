@@ -30,14 +30,25 @@
         <div class="row g-3 mb-3">
           <div class="col-lg-5">
             <div class="hrp-card hrp-chart-card">
-              <h6>Department Performance</h6>
-              <canvas id="hrp-dept-chart"></canvas>
+              <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                <div>
+                  <h6 class="mb-0">Department Performance</h6>
+                  <small class="text-muted-sm" id="hrp-dept-chart-subtitle">Avg KPI score</small>
+                </div>
+                <label class="visually-hidden" for="hrp-dept-month">Department performance month</label>
+                <input id="hrp-dept-month" type="month" class="form-control form-control-sm w-auto" aria-label="Department performance month">
+              </div>
+              <div class="hrp-chart-wrap" id="hrp-dept-chart-wrap">
+                <canvas id="hrp-dept-chart" role="img" aria-label="Average KPI score by department"></canvas>
+              </div>
             </div>
           </div>
           <div class="col-lg-4">
             <div class="hrp-card hrp-chart-card">
               <h6>Organization Performance Trend</h6>
-              <canvas id="hrp-trend-chart"></canvas>
+              <div class="hrp-chart-wrap">
+                <canvas id="hrp-trend-chart"></canvas>
+              </div>
             </div>
           </div>
           <div class="col-lg-3">
@@ -52,7 +63,9 @@
                 <input id="hrp-dashboard-date" type="date" class="form-control" aria-label="Attendance date">
                 <button id="hrp-dashboard-date-apply" type="button" class="btn btn-primary">Apply</button>
               </div>
-              <canvas id="hrp-attendance-chart"></canvas>
+              <div class="hrp-chart-wrap hrp-chart-wrap-sm">
+                <canvas id="hrp-attendance-chart"></canvas>
+              </div>
             </div>
           </div>
         </div>

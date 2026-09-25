@@ -23,10 +23,11 @@ const ALERT_THRESHOLDS = {
 };
 
 /** Organization-wide dashboard: headline counts + trends + alerts. */
-async function getOrganizationDashboard(selectedDate) {
+async function getOrganizationDashboard(selectedDate, selectedMonth) {
   const today = dayjs().format('YYYY-MM-DD');
   const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');
   const attendanceDate = isValidDateOnly(selectedDate) ? selectedDate : today;
+  const departmentPeriod = resolveMonthPeriod(selectedMonth);
 
   const totalEmployees = await Employee.count({ where: { employment_status: 'ACTIVE' } });
 
@@ -71,7 +72,7 @@ async function getOrganizationDashboard(selectedDate) {
     attributes: ['id', 'employee_code', 'first_name', 'last_name', 'department_id'],
   });
 
-  const departmentPerformance = await getDepartmentPerformanceBreakdown(monthStart, today);
+  const departmentPerformance = await getDepartmentPerformanceBreakdown(departmentPeriod.start, departmentPeriod.end);
   const performanceTrend = await getOrgPerformanceTrend(6);
   const alerts = await getManagementAlerts();
 
@@ -86,11 +87,26 @@ async function getOrganizationDashboard(selectedDate) {
     topPerformers: attachScore(topPerformers, scores),
     lowPerformers: attachScore(lowPerformers, scores),
     departmentPerformance,
+    departmentPerformanceMonth: departmentPeriod.month,
     performanceTrend,
     kpiAchievement: averageKpiScore,
     managementAlerts: alerts,
     generatedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Turns a 'YYYY-MM' value into a date range covering that month.
+ * Missing, malformed or future months fall back to the current month, and the
+ * current month is capped at today so it is not averaged over days yet to come.
+ */
+function resolveMonthPeriod(month) {
+  const currentMonth = dayjs().format('YYYY-MM');
+  const isValid = typeof month === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(month);
+  const resolved = isValid && month <= currentMonth ? month : currentMonth;
+  const start = dayjs(`${resolved}-01`);
+  const end = resolved === currentMonth ? dayjs() : start.endOf('month');
+  return { month: resolved, start: start.format('YYYY-MM-DD'), end: end.format('YYYY-MM-DD') };
 }
 
 function isValidDateOnly(value) {
@@ -111,17 +127,24 @@ async function getDepartmentPerformanceBreakdown(periodStart, periodEnd) {
     // eslint-disable-next-line no-await-in-loop
     const employees = await Employee.findAll({ where: { department_id: dept.id, employment_status: 'ACTIVE' } });
     if (employees.length === 0) {
-      breakdown.push({ departmentId: dept.id, departmentName: dept.name, employeeCount: 0, averageKpiScore: 0 });
+      breakdown.push({ departmentId: dept.id, departmentName: dept.name, employeeCount: 0, scoredEmployeeCount: 0, averageKpiScore: 0 });
       continue;
     }
+    // Only employees with KPI assignments are averaged - someone with no KPIs would otherwise count as 0%.
     const scores = [];
     for (const emp of employees) {
       // eslint-disable-next-line no-await-in-loop
       const result = await getEmployeeKpiScore(emp.id, periodStart, periodEnd);
-      scores.push(result.overallKpiScore);
+      if (result.hasKpis) scores.push(result.overallKpiScore);
     }
     const avg = scores.length ? Math.round((scores.reduce((s, v) => s + v, 0) / scores.length) * 100) / 100 : 0;
-    breakdown.push({ departmentId: dept.id, departmentName: dept.name, employeeCount: employees.length, averageKpiScore: avg });
+    breakdown.push({
+      departmentId: dept.id,
+      departmentName: dept.name,
+      employeeCount: employees.length,
+      scoredEmployeeCount: scores.length,
+      averageKpiScore: avg,
+    });
   }
 
   return breakdown.sort((a, b) => b.averageKpiScore - a.averageKpiScore);
@@ -353,7 +376,7 @@ async function getManagementAlerts() {
 
   const departmentPerformance = await getDepartmentPerformanceBreakdown(monthStart, today);
   departmentPerformance.forEach((d) => {
-    if (d.employeeCount > 0 && d.averageKpiScore < ALERT_THRESHOLDS.LOW_DEPARTMENT_KPI) {
+    if (d.scoredEmployeeCount > 0 && d.averageKpiScore < ALERT_THRESHOLDS.LOW_DEPARTMENT_KPI) {
       alerts.push({
         type: 'DEPARTMENT_KPI_LOW',
         severity: 'HIGH',

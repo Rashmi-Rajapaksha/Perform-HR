@@ -175,7 +175,50 @@ async function recalculateAllForPeriod({ periodStart, periodEnd }) {
   return results;
 }
 
-/** Aggregates an employee's KPI measurements for a period into an overall KPI score (0-100). */
+const AUTOMATIC_SOURCES = [KPI_DATA_SOURCE.ATTENDANCE, KPI_DATA_SOURCE.PRODUCTION];
+
+function toDateOnly(value) {
+  return typeof value === 'string' ? value.slice(0, 10) : new Date(value).toISOString().slice(0, 10);
+}
+
+/**
+ * Picks the stored measurement that best represents the requested period.
+ * Measurements are recorded per full period (e.g. 1-30 Sep), while dashboards
+ * ask for partial ranges such as month-to-date (1-25 Sep), so an exact date
+ * match is preferred, then the measurement that overlaps the range the most,
+ * then the most recent one.
+ */
+function pickMeasurement(measurements, periodStart, periodEnd) {
+  if (!measurements || measurements.length === 0) return null;
+  const startDate = toDateOnly(periodStart);
+  const endDate = toDateOnly(periodEnd);
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+
+  const ranked = measurements.map((m) => {
+    const mStart = new Date(toDateOnly(m.period_start)).getTime();
+    const mEnd = new Date(toDateOnly(m.period_end)).getTime();
+    return {
+      m,
+      exact: toDateOnly(m.period_start) === startDate && toDateOnly(m.period_end) === endDate,
+      overlap: Math.min(end, mEnd) - Math.max(start, mStart),
+      mEnd,
+    };
+  });
+
+  ranked.sort((a, b) => (b.exact - a.exact) || (b.overlap - a.overlap) || (b.mEnd - a.mEnd));
+  return ranked[0].m;
+}
+
+/**
+ * Aggregates an employee's KPI results for a period into an overall KPI score.
+ *
+ * For each active assignment:
+ *   1. use the stored KpiMeasurement that covers the period (see pickMeasurement);
+ *   2. otherwise, for ATTENDANCE / PRODUCTION KPIs, calculate it live from the
+ *      source data (not persisted - run the recalculate job to store it);
+ *   3. otherwise (a MANUAL KPI with nothing recorded) it scores 0.
+ */
 async function getEmployeeKpiScore(employeeId, periodStart, periodEnd) {
   const assignments = await KpiAssignment.findAll({
     where: { employee_id: employeeId, is_active: true },
@@ -184,29 +227,58 @@ async function getEmployeeKpiScore(employeeId, periodStart, periodEnd) {
       {
         model: KpiMeasurement,
         as: 'measurements',
-        where: { period_start: periodStart, period_end: periodEnd },
+        // any measurement whose period overlaps the requested range
+        where: { period_start: { [Op.lte]: periodEnd }, period_end: { [Op.gte]: periodStart } },
         required: false,
       },
     ],
   });
 
-  const results = assignments.map((a) => {
-    const measurement = a.measurements?.[0];
-    const { weight } = resolveTargetAndWeight(a);
-    return {
+  const results = [];
+  for (const a of assignments) {
+    const def = a.kpiDefinition;
+    const { target, weight } = resolveTargetAndWeight(a);
+    const measurement = pickMeasurement(a.measurements, periodStart, periodEnd);
+
+    let actual = 0;
+    let achievementPercentage = 0;
+    let weightedScore = 0;
+    let source = 'MISSING';
+
+    if (measurement) {
+      actual = Number(measurement.actual_value);
+      achievementPercentage = Number(measurement.achievement_percentage);
+      weightedScore = Number(measurement.weighted_score);
+      source = 'STORED';
+    } else if (AUTOMATIC_SOURCES.includes(def.data_source)) {
+      // eslint-disable-next-line no-await-in-loop
+      actual = Number(await fetchActualValueFromSource({
+        dataSource: def.data_source,
+        kpiCode: def.code,
+        employeeId,
+        periodStart,
+        periodEnd,
+      })) || 0;
+      ({ achievementPercentage, weightedScore } = calculateKpiResult({ actualValue: actual, targetValue: target, direction: def.direction, weight }));
+      actual = Math.round(actual * 100) / 100;
+      source = 'LIVE';
+    }
+
+    results.push({
       kpiDefinitionId: a.kpi_definition_id,
-      kpiName: a.kpiDefinition.name,
-      category: a.kpiDefinition.category?.name,
-      target: resolveTargetAndWeight(a).target,
-      actual: measurement ? Number(measurement.actual_value) : 0,
-      achievementPercentage: measurement ? Number(measurement.achievement_percentage) : 0,
+      kpiName: def.name,
+      category: def.category?.name,
+      target,
+      actual,
+      achievementPercentage,
       weight,
-      weightedScore: measurement ? Number(measurement.weighted_score) : 0,
-    };
-  });
+      weightedScore,
+      source,
+    });
+  }
 
   const aggregate = aggregateKpiScore(results);
-  return { details: results, ...aggregate };
+  return { details: results, hasKpis: results.length > 0, ...aggregate };
 }
 
 async function listKpiDefinitions(query) {

@@ -41,6 +41,12 @@ describe('kpiCalculator - achievement percentage', () => {
     expect(result).toBe(50); // (2/4)*100 = 50
   });
 
+  test('LOWER_IS_BETTER: zero target missed -> 100 / (1 + actual)', () => {
+    expect(calculateAchievementPercentage({ actualValue: 0, targetValue: 0, direction: 'LOWER_IS_BETTER' })).toBe(150);
+    expect(calculateAchievementPercentage({ actualValue: 1, targetValue: 0, direction: 'LOWER_IS_BETTER' })).toBe(50);
+    expect(calculateAchievementPercentage({ actualValue: 3, targetValue: 0, direction: 'LOWER_IS_BETTER' })).toBe(25);
+  });
+
   test('achievement is never negative', () => {
     const result = calculateAchievementPercentage({ actualValue: -10, targetValue: 100, direction: 'HIGHER_IS_BETTER' });
     expect(result).toBeGreaterThanOrEqual(0);
@@ -76,6 +82,17 @@ describe('kpiCalculator - aggregateKpiScore', () => {
     const results = [{ weight: 40, weightedScore: 40 }, { weight: 40, weightedScore: 40 }];
     const agg = aggregateKpiScore(results);
     expect(agg.weightsValid).toBe(false);
+  });
+
+  test('rescales to a 100-weight basis when weights do not total 100', () => {
+    const results = [{ weight: 40, weightedScore: 36 }, { weight: 40, weightedScore: 32 }]; // 90% and 80%
+    const agg = aggregateKpiScore(results);
+    expect(agg.rawWeightedScore).toBe(68);
+    expect(agg.overallKpiScore).toBe(85);
+  });
+
+  test('no KPIs -> score 0', () => {
+    expect(aggregateKpiScore([]).overallKpiScore).toBe(0);
   });
 });
 

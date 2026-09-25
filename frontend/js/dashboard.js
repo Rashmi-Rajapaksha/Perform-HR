@@ -20,6 +20,32 @@ const HrpDashboard = (() => {
     return `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
   }
 
+  function currentMonth() {
+    return today().slice(0, 7);
+  }
+
+  function formatMonthLabel(month) {
+    const [year, mon] = month.split('-').map(Number);
+    return new Date(year, mon - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  }
+
+  /** Sets up the Department Performance month picker (defaults to the current month, no future months). */
+  function initDepartmentMonthPicker() {
+    const input = document.getElementById('hrp-dept-month');
+    if (!input || input.dataset.bound) return;
+    input.dataset.bound = 'true';
+    input.max = currentMonth();
+    if (!input.value) input.value = currentMonth();
+    input.addEventListener('change', () => {
+      if (!input.value || input.value > input.max) input.value = input.max;
+      loadOrganizationDashboard().catch(HrpUtils.showError);
+    });
+  }
+
+  function selectedDepartmentMonth() {
+    return document.getElementById('hrp-dept-month')?.value || currentMonth();
+  }
+
   function chartsAvailable() {
     if (typeof Chart === 'undefined') {
       console.error('Chart.js failed to load. Check your internet connection or CDN access.');
@@ -86,10 +112,96 @@ const HrpDashboard = (() => {
       .join('')}</ul>`;
   }
 
+  // Same threshold the backend uses for the DEPARTMENT_KPI_LOW alert.
+  const LOW_DEPARTMENT_KPI = 65;
+
+  function departmentBarColor(dept) {
+    if (!dept.scoredEmployeeCount) return '#cbd5e1';
+    if (dept.averageKpiScore >= 100) return '#16a34a';
+    if (dept.averageKpiScore >= LOW_DEPARTMENT_KPI) return '#2453ff';
+    return '#dc2626';
+  }
+
+  function renderDepartmentChart(departments) {
+    const canvas = document.getElementById('hrp-dept-chart');
+    const wrap = document.getElementById('hrp-dept-chart-wrap');
+    if (!canvas || !wrap) return;
+    destroyChart('dept');
+    wrap.querySelector('.hrp-chart-empty')?.remove();
+
+    if (departments.length === 0) {
+      canvas.style.display = 'none';
+      wrap.insertAdjacentHTML('beforeend', '<p class="hrp-chart-empty text-muted-sm mb-0">No active departments to display.</p>');
+      return;
+    }
+    canvas.style.display = '';
+
+    // Horizontal bars keep long department names readable; grow the chart with the number of departments.
+    wrap.style.height = `${Math.max(260, departments.length * 34 + 40)}px`;
+
+    const highest = Math.max(...departments.map((x) => x.averageKpiScore), 0);
+    const axisMax = Math.max(100, Math.ceil((highest + 10) / 25) * 25);
+
+    chartInstances.dept = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: departments.map((x) => x.departmentName),
+        datasets: [
+          {
+            label: 'Avg KPI Score (%)',
+            data: departments.map((x) => x.averageKpiScore),
+            backgroundColor: departments.map(departmentBarColor),
+            borderRadius: 4,
+            maxBarThickness: 22,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { beginAtZero: true, max: axisMax, ticks: { callback: (v) => `${v}%` }, grid: { color: '#eef0f4' } },
+          y: {
+            grid: { display: false },
+            ticks: {
+              autoSkip: false,
+              callback(value) {
+                const label = this.getLabelForValue(value);
+                return label.length > 18 ? `${label.slice(0, 17)}…` : label;
+              },
+            },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => departments[items[0].dataIndex].departmentName,
+              label: (item) => `Avg KPI: ${item.parsed.x}%`,
+              afterLabel: (item) => {
+                const { employeeCount, scoredEmployeeCount = 0 } = departments[item.dataIndex];
+                if (employeeCount === 0) return 'No active employees';
+                return `${scoredEmployeeCount} of ${employeeCount} active employee${employeeCount === 1 ? '' : 's'} with KPIs`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async function loadOrganizationDashboard() {
     if (!chartsAvailable()) return;
-    const res = await HrpApi.get(`/dashboard/organization${dateRangeParams()}`);
+    initDepartmentMonthPicker();
+    const res = await HrpApi.get(`/dashboard/organization${dateRangeParams()}&month=${encodeURIComponent(selectedDepartmentMonth())}`);
     const d = res.data;
+
+    const deptMonth = d.departmentPerformanceMonth || selectedDepartmentMonth();
+    const monthInput = document.getElementById('hrp-dept-month');
+    if (monthInput) monthInput.value = deptMonth;
+    const deptSubtitle = document.getElementById('hrp-dept-chart-subtitle');
+    if (deptSubtitle) deptSubtitle.textContent = `Avg KPI score · ${formatMonthLabel(deptMonth)}`;
 
     const attendanceTitle = document.getElementById('hrp-attendance-title');
     if (attendanceTitle) {
@@ -109,18 +221,7 @@ const HrpDashboard = (() => {
     renderRankingList(document.getElementById('hrp-low-performers'), d.lowPerformers, { scoreKey: 'kpiScore' });
     renderAlerts(document.getElementById('hrp-alert-list'), d.managementAlerts);
 
-    const deptCtx = document.getElementById('hrp-dept-chart');
-    if (deptCtx) {
-      destroyChart('dept');
-      chartInstances.dept = new Chart(deptCtx, {
-        type: 'bar',
-        data: {
-          labels: d.departmentPerformance.map((x) => x.departmentName),
-          datasets: [{ label: 'Avg KPI Score (%)', data: d.departmentPerformance.map((x) => x.averageKpiScore), backgroundColor: '#2453ff' }],
-        },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 120 } } },
-      });
-    }
+    renderDepartmentChart(d.departmentPerformance || []);
 
     const trendCtx = document.getElementById('hrp-trend-chart');
     if (trendCtx) {
@@ -131,7 +232,7 @@ const HrpDashboard = (() => {
           labels: d.performanceTrend.map((x) => x.period),
           datasets: [{ label: 'Avg Final Score', data: d.performanceTrend.map((x) => x.averageScore), borderColor: '#16a34a', tension: 0.3, fill: false }],
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } } },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, min: 60 ,max: 120 } } },
       });
     }
 
