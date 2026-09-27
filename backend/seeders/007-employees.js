@@ -54,7 +54,7 @@ function buildOrgChart() {
   for (let i = 1; i <= 3; i += 1) {
     slots.push({
       key: `PROD-SUP-${i}`, department: 'PROD', designation: 'SUPERVISOR', reportsTo: 'PROD-MGR',
-      salaryBase: 105000, joinRange: [3, 7], schedule: 'ROTATING', shiftHint: ['SHIFT_A', 'SHIFT_B', 'SHIFT_C'][i - 1],
+      salaryBase: 105000, joinRange: [3, 7], schedule: 'ROTATING', shiftHint: ['SHIFT_A', 'SHIFT_B', 'SHIFT_A'][i - 1],
     });
   }
   for (let i = 1; i <= 4; i += 1) {
@@ -257,11 +257,11 @@ module.exports = {
     }));
     await queryInterface.bulkInsert('employee_employment_history', historyRows);
 
-    // ----- Shift assignments: rotating-schedule staff get one of Shift A/B/C, fixed-schedule staff get GENERAL -----
+    // ----- Shift assignments: rotating-schedule staff get one of Shift A/B, fixed-schedule staff get GENERAL -----
     const shiftAssignmentRows = employeeRows.map((row) => {
       let assignedShiftCode;
       if (row.__schedule === 'ROTATING') {
-        assignedShiftCode = row.__shiftHint || rng.choice(['SHIFT_A', 'SHIFT_B', 'SHIFT_C']);
+        assignedShiftCode = row.__shiftHint || rng.choice(['SHIFT_A', 'SHIFT_B']);
       } else {
         assignedShiftCode = 'GENERAL';
       }

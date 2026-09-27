@@ -27,7 +27,7 @@ const TARGET_BY_DESIGNATION = {
   DEPT_MGR: [40, 60],
 };
 
-const SHIFT_MULTIPLIER = { SHIFT_A: 1.0, SHIFT_B: 0.97, SHIFT_C: 0.92, GENERAL: 1.0 };
+const SHIFT_MULTIPLIER = { SHIFT_A: 1.0, SHIFT_B: 0.97, GENERAL: 1.0 };
 
 module.exports = {
   up: async (queryInterface) => {
