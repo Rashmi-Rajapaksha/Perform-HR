@@ -90,6 +90,7 @@ const HrpDashboard = (() => {
       <div class="hrp-card hrp-stat-tile">
         <div class="stat-label">${t.label}</div>
         <div class="stat-value">${t.value}</div>
+        ${t.sub ? `<div class="stat-delta text-muted-sm">${HrpUtils.escapeHtml(t.sub)}</div>` : ''}
       </div>`
       )
       .join('');
@@ -232,7 +233,7 @@ const HrpDashboard = (() => {
           labels: d.performanceTrend.map((x) => x.period),
           datasets: [{ label: 'Avg Final Score', data: d.performanceTrend.map((x) => x.averageScore), borderColor: '#16a34a', tension: 0.3, fill: false }],
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, min: 60 ,max: 120 } } },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, min: 60, max: 120 } } },
       });
     }
 
@@ -262,6 +263,10 @@ const HrpDashboard = (() => {
     if (!chartsAvailable()) return;
     const res = await HrpApi.get(`/dashboard/department/${departmentId}${dateRangeParams()}`);
     const d = res.data;
+    
+    console.log('********************************************');    
+    console.log(res.data);
+
 
     renderStatTiles(document.getElementById('hrp-stat-grid'), [
       { label: 'Employees', value: d.numberOfEmployees },
@@ -336,7 +341,7 @@ const HrpDashboard = (() => {
       { label: 'Attendance Rate', value: `${d.attendance.attendanceRate}%` },
       { label: 'Punctuality', value: `${d.attendance.punctualityRate}%` },
       { label: 'Overall KPI Score', value: `${d.kpi.overallKpiScore}%` },
-      { label: 'Performance Score', value: d.overallPerformanceScore ?? '-' },
+      { label: 'Performance Score', value: d.overallPerformanceScore ?? '-', sub: d.performanceScorePeriod || 'Not yet evaluated' },
     ]);
 
     document.getElementById('hrp-current-shift').textContent = d.currentShift ? `${d.currentShift.name} (${d.currentShift.start} - ${d.currentShift.end})` : 'Not assigned';
@@ -381,7 +386,7 @@ const HrpDashboard = (() => {
         type: 'line',
         data: {
           labels: d.performanceHistory.map((h) => h.period).reverse(),
-          datasets: [{ label: 'Final Score', data: d.performanceHistory.map((h) => h.finalScore).reverse(), borderColor: '#2453ff', tension: 0.3 }],
+          datasets: [{ label: 'Final Score', data: d.performanceHistory.map((h) => h.finalScore).reverse(), borderColor: '#2453ff', tension: 0.3, spanGaps: true }],
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } } },
       });

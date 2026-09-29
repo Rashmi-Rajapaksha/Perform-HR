@@ -280,16 +280,18 @@ async function getEmployeeDashboard(employeeId) {
   const attendance = await getAttendanceSummary(employee.id, monthStart, today);
   const kpi = await getEmployeeKpiScore(employee.id, monthStart, today);
 
+  // The current period's evaluation is usually still a DRAFT with no
+  // final_score, so use the most recent evaluation that has been scored.
   const latestEvaluation = await PerformanceEvaluation.findOne({
-    where: { employee_id: employee.id },
+    where: { employee_id: employee.id, final_score: { [Op.ne]: null } },
     include: [{ model: EvaluationPeriod, as: 'period' }, { model: require('../models').PerformanceRatingScale, as: 'rating' }],
-    order: [['id', 'DESC']],
+    order: [[{ model: EvaluationPeriod, as: 'period' }, 'start_date', 'DESC']],
   });
 
   const performanceHistory = await PerformanceEvaluation.findAll({
     where: { employee_id: employee.id },
     include: [{ model: EvaluationPeriod, as: 'period' }],
-    order: [['id', 'DESC']],
+    order: [[{ model: EvaluationPeriod, as: 'period' }, 'start_date', 'DESC']],
     limit: 12,
   });
 
@@ -313,12 +315,13 @@ async function getEmployeeDashboard(employeeId) {
     attendance,
     currentShift: currentShift ? { id: currentShift.id, name: currentShift.name, start: currentShift.start_time, end: currentShift.end_time } : null,
     kpi,
-    overallPerformanceScore: latestEvaluation?.final_score ?? null,
+    overallPerformanceScore: latestEvaluation?.final_score != null ? Number(latestEvaluation.final_score) : null,
+    performanceScorePeriod: latestEvaluation?.period?.name ?? null,
     performanceRating: latestEvaluation?.rating?.rating_label ?? null,
     performanceHistory: performanceHistory.map((e) => ({
       period: e.period.name,
-      kpiScore: e.kpi_score,
-      finalScore: e.final_score,
+      kpiScore: e.kpi_score != null ? Number(e.kpi_score) : null,
+      finalScore: e.final_score != null ? Number(e.final_score) : null,
     })),
     managerFeedback: latestEvaluation?.manager_comments ?? null,
     payslips: recentPayslips.map((p) => ({

@@ -26,7 +26,7 @@ const HrpPayroll = (() => {
       <td>${HrpUtils.escapeHtml(p.name)}</td>
       <td>${HrpUtils.formatDate(p.start_date)} - ${HrpUtils.formatDate(p.end_date)}</td>
       <td>${HrpUtils.statusBadge(p.status)}</td>
-      <td><a class="btn btn-sm btn-outline-primary" href="details.html?period_id=${p.id}">View Payrolls</a> <a class="btn btn-sm btn-primary" href="process.html?period_id=${p.id}">Process</a></td>
+      <td><a class="btn btn-sm btn-outline-primary" href="${HrpUtils.pageUrl(`payroll/details.html?period_id=${p.id}`)}">View Payrolls</a> <a class="btn btn-sm btn-primary" href="${HrpUtils.pageUrl(`payroll/process.html?period_id=${p.id}`)}">Process</a></td>
     </tr>`
       )
       .join('');
@@ -46,7 +46,7 @@ const HrpPayroll = (() => {
       try {
         const res = await HrpApi.post('/payroll/process', { payroll_period_id: Number(document.getElementById('hrp-process-period').value) });
         HrpUtils.showToast(`Processed payroll for ${res.data.length} employee(s)`);
-        window.location.href = `details.html?period_id=${document.getElementById('hrp-process-period').value}`;
+        window.location.href = HrpUtils.pageUrl(`payroll/details.html?period_id=${document.getElementById('hrp-process-period').value}`);
       } catch (err) {
         HrpUtils.showError(err);
         btn.disabled = false;
@@ -68,7 +68,7 @@ const HrpPayroll = (() => {
         <td>${HrpUtils.formatCurrency(p.net_salary)}</td>
         <td>${HrpUtils.statusBadge(p.status)}</td>
         <td class="hrp-row-actions">
-          <a class="btn btn-outline-secondary" href="payslip.html?id=${p.id}"><i class="bi bi-receipt"></i></a>
+          <a class="btn btn-outline-secondary" href="${HrpUtils.pageUrl(`payroll/payslip.html?id=${p.id}`)}"><i class="bi bi-receipt"></i></a>
           ${p.status === 'CALCULATED' ? `<button class="btn btn-outline-primary" data-action="review:${p.id}">Review</button>` : ''}
           ${p.status === 'REVIEWED' ? `<button class="btn btn-outline-success" data-action="approve:${p.id}">Approve</button>` : ''}
           ${p.status === 'APPROVED' ? `<button class="btn btn-success" data-action="pay:${p.id}">Mark Paid</button>` : ''}
@@ -111,7 +111,7 @@ const HrpPayroll = (() => {
   async function initMyPayslipsPage() {
     const res = await HrpApi.get('/payroll/my-payslips');
     document.getElementById('hrp-my-payslips-table').innerHTML = res.data.length
-      ? res.data.map((p) => `<tr><td>${HrpUtils.escapeHtml(p.period?.name || '')}</td><td>${HrpUtils.formatCurrency(p.net_salary)}</td><td>${HrpUtils.statusBadge(p.status)}</td><td><a class="btn btn-sm btn-outline-primary" href="payslip.html?id=${p.id}">View</a></td></tr>`).join('')
+      ? res.data.map((p) => `<tr><td>${HrpUtils.escapeHtml(p.period?.name || '')}</td><td>${HrpUtils.formatCurrency(p.net_salary)}</td><td>${HrpUtils.statusBadge(p.status)}</td><td><a class="btn btn-sm btn-outline-primary" href="${HrpUtils.pageUrl(`payroll/payslip.html?id=${p.id}`)}">View</a></td></tr>`).join('')
       : '<tr><td colspan="4" class="text-center text-muted-sm py-3">No payslips yet</td></tr>';
   }
 

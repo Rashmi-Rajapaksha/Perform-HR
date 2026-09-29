@@ -39,7 +39,7 @@ const HrpPerformance = (() => {
         <td>${ev.final_score ?? '-'}</td>
         <td>${HrpUtils.escapeHtml(ev.rating?.rating_label || '-')}</td>
         <td>${HrpUtils.statusBadge(ev.status)}</td>
-        <td><a class="btn btn-sm btn-outline-primary" href="review.html?id=${ev.id}">Review</a></td>
+        <td><a class="btn btn-sm btn-outline-primary" href="${HrpUtils.pageUrl(`performance/review.html?id=${ev.id}`)}">Review</a></td>
       </tr>`
           )
           .join('')

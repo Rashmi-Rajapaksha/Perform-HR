@@ -76,5 +76,46 @@ const HrpUtils = (() => {
     return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  return { formatCurrency, formatDate, formatDateTime, statusBadge, scoreClass, el, qs, debounce, showToast, showError, escapeHtml };
+  /**
+   * Absolute path of the frontend root (the folder holding login.html and pages/).
+   * Derived from "/pages/" in the URL so it still works when the static server
+   * uses clean URLs (e.g. "/pages/employees" instead of "/pages/employees/index.html").
+   */
+  function appRoot() {
+    const path = window.location.pathname;
+    const idx = path.indexOf('/pages/');
+    if (idx !== -1) return path.slice(0, idx + 1);
+    return path.slice(0, path.lastIndexOf('/') + 1);
+  }
+
+  /** Name of the current module folder, e.g. "employees" for /pages/employees/view.html. */
+  function currentModule() {
+    const match = window.location.pathname.match(/\/pages\/([^/]+)/);
+    return match ? match[1] : '';
+  }
+
+  /**
+   * True when the static server uses clean URLs (e.g. `npx serve`), detected by
+   * the current page's URL not ending in ".html". Such servers 301-redirect
+   * "view.html?id=5" to "view" and DROP the query string, so links must point
+   * at the clean URL directly.
+   */
+  function usesCleanUrls() {
+    const path = window.location.pathname;
+    return path.includes('/pages/') && !path.endsWith('.html');
+  }
+
+  /**
+   * Builds an absolute page URL from a path under pages/, e.g.
+   * pageUrl('employees/view.html?id=5') -> "/pages/employees/view.html?id=5",
+   * or "/pages/employees/view?id=5" on a clean-URL server (keeps the ?id=).
+   * Never use bare relative links like "view.html" - they resolve to
+   * "/pages/view.html" when the current URL has no trailing slash.
+   */
+  function pageUrl(path) {
+    const target = usesCleanUrls() ? path.replace(/\.html(?=$|[?#])/, '') : path;
+    return `${appRoot()}pages/${target}`;
+  }
+
+  return { formatCurrency, formatDate, formatDateTime, statusBadge, scoreClass, el, qs, debounce, showToast, showError, escapeHtml, appRoot, currentModule, pageUrl };
 })();
