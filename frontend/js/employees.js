@@ -42,8 +42,8 @@ const HrpEmployees = (() => {
         <td>${HrpUtils.escapeHtml(e.manager ? `${e.manager.first_name} ${e.manager.last_name}` : '-')}</td>
         <td>${HrpUtils.statusBadge(e.employment_status)}</td>
         <td class="hrp-row-actions">
-          <a class="btn btn-outline-secondary" href="view.html?id=${e.id}"><i class="bi bi-eye"></i></a>
-          <a class="btn btn-outline-primary" href="edit.html?id=${e.id}"><i class="bi bi-pencil"></i></a>
+          <a class="btn btn-outline-secondary" href="${HrpUtils.pageUrl(`employees/view.html?id=${e.id}`)}"><i class="bi bi-eye"></i></a>
+          <a class="btn btn-outline-primary" href="${HrpUtils.pageUrl(`employees/edit.html?id=${e.id}`)}"><i class="bi bi-pencil"></i></a>
         </td>
       </tr>`
         )
@@ -133,15 +133,26 @@ const HrpEmployees = (() => {
       try {
         const res = await HrpApi.post('/employees', readForm());
         HrpUtils.showToast('Employee created successfully');
-        window.location.href = `view.html?id=${res.data.id}`;
+        window.location.href = HrpUtils.pageUrl(`employees/view.html?id=${res.data.id}`);
       } catch (err) {
         HrpUtils.showError(err);
       }
     });
   }
 
-  async function initEditPage() {
+  /** Reads ?id= and stops early (instead of calling /employees/null) when it's missing. */
+  function requireEmployeeId() {
     const id = HrpUtils.qs('id');
+    if (!id || !/^\d+$/.test(id)) {
+      HrpUtils.showToast('No employee selected. Open the employee from the Employees list.', 'danger');
+      return null;
+    }
+    return id;
+  }
+
+  async function initEditPage() {
+    const id = requireEmployeeId();
+    if (!id) return;
     await populateFormLookups();
     const res = await HrpApi.get(`/employees/${id}`);
     const e = res.data;
@@ -167,7 +178,7 @@ const HrpEmployees = (() => {
         delete payload.employee_code;
         await HrpApi.put(`/employees/${id}`, payload);
         HrpUtils.showToast('Employee updated successfully');
-        window.location.href = `view.html?id=${id}`;
+        window.location.href = HrpUtils.pageUrl(`employees/view.html?id=${id}`);
       } catch (err) {
         HrpUtils.showError(err);
       }
@@ -175,7 +186,8 @@ const HrpEmployees = (() => {
   }
 
   async function initViewPage() {
-    const id = HrpUtils.qs('id');
+    const id = requireEmployeeId();
+    if (!id) return;
     let res;
     try {
       res = await HrpApi.get(`/employees/${id}`);
@@ -197,13 +209,13 @@ const HrpEmployees = (() => {
     document.getElementById('hrp-view-email').textContent = e.email || '-';
     document.getElementById('hrp-view-phone').textContent = e.phone || '-';
     document.getElementById('hrp-view-schedule').textContent = e.work_schedule_type;
-    document.getElementById('hrp-edit-link').href = `edit.html?id=${id}`;
+    document.getElementById('hrp-edit-link').href = HrpUtils.pageUrl(`employees/edit.html?id=${id}`);
 
     try {
       const reports = await HrpApi.get(`/employees/${id}/direct-reports`);
       const list = document.getElementById('hrp-direct-reports');
       list.innerHTML = reports.data.length
-        ? reports.data.map((r) => `<li><a href="view.html?id=${r.id}">${HrpUtils.escapeHtml(r.first_name)} ${HrpUtils.escapeHtml(r.last_name)}</a></li>`).join('')
+        ? reports.data.map((r) => `<li><a href="${HrpUtils.pageUrl(`employees/view.html?id=${r.id}`)}">${HrpUtils.escapeHtml(r.first_name)} ${HrpUtils.escapeHtml(r.last_name)}</a></li>`).join('')
         : '<li class="text-muted-sm">No direct reports</li>';
     } catch (e2) { /* non-fatal */ }
   }

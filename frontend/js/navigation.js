@@ -13,11 +13,23 @@
  */
 const HrpLayout = (() => {
   function computeBase() {
-    // frontend/index.html & login.html -> depth 0 ("./")
-    // frontend/pages/<module>/<page>.html -> depth 2 ("../../")
-    const path = window.location.pathname;
-    if (path.includes('/pages/')) return '../../';
-    return './';
+    // Absolute app root (e.g. "/"), so sidebar links and component fetches
+    // don't depend on whether the current URL ends in a slash.
+    return HrpUtils.appRoot();
+  }
+
+  /**
+   * Static in-page links are written as sibling filenames (href="create.html").
+   * Rewrite them to absolute URLs inside the current module, since a relative
+   * link on "/pages/employees" (no trailing slash) would go to "/pages/create.html".
+   */
+  function resolveModuleLinks() {
+    const module = HrpUtils.currentModule();
+    if (!module) return;
+    document.querySelectorAll('.hrp-content a[href]').forEach((link) => {
+      const href = link.getAttribute('href');
+      if (/^[\w-]+\.html([?#].*)?$/.test(href)) link.setAttribute('href', HrpUtils.pageUrl(`${module}/${href}`));
+    });
   }
 
   async function fetchFragment(base, name) {
@@ -101,6 +113,7 @@ const HrpLayout = (() => {
     await mountSidebarAndNavbar(base);
     applyRoleFiltering();
     highlightActiveLink(match);
+    resolveModuleLinks();
     populateUserMenu();
     const titleEl = document.getElementById('hrp-page-title');
     if (titleEl && title) titleEl.textContent = title;
